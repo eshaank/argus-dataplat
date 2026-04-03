@@ -11,10 +11,10 @@
 set -euo pipefail
 
 # ── Cloud credentials (fill these in) ──
-CLOUD_HOST="${CLOUD_HOST:?Set CLOUD_HOST}"
+CH_CLOUD_HOST="${CH_CLOUD_HOST:?Set CH_CLOUD_HOST}"
 CLOUD_PORT="${CLOUD_PORT:-8443}"
-CLOUD_USER="${CLOUD_USER:-default}"
-CLOUD_PASS="${CLOUD_PASS:?Set CLOUD_PASS}"
+CH_CLOUD_USER="${CH_CLOUD_USER:-default}"
+CH_CLOUD_PASS="${CH_CLOUD_PASS:?Set CH_CLOUD_PASS}"
 
 # ── Local credentials ──
 LOCAL_HOST="localhost"
@@ -32,15 +32,15 @@ local_query() {
 }
 
 cloud_query() {
-    curl -s "https://${CLOUD_HOST}:${CLOUD_PORT}/?database=${LOCAL_DB}" \
-        --user "${CLOUD_USER}:${CLOUD_PASS}" -d "$1"
+    curl -s "https://${CH_CLOUD_HOST}:${CLOUD_PORT}/?database=${LOCAL_DB}" \
+        --user "${CH_CLOUD_USER}:${CH_CLOUD_PASS}" -d "$1"
 }
 
 cloud_insert() {
     local table="$1"
     local file="$2"
-    curl -s "https://${CLOUD_HOST}:${CLOUD_PORT}/?database=${LOCAL_DB}&query=INSERT+INTO+${table}+FORMAT+Native" \
-        --user "${CLOUD_USER}:${CLOUD_PASS}" \
+    curl -s "https://${CH_CLOUD_HOST}:${CLOUD_PORT}/?database=${LOCAL_DB}&query=INSERT+INTO+${table}+FORMAT+Native" \
+        --user "${CH_CLOUD_USER}:${CH_CLOUD_PASS}" \
         --data-binary "@${file}"
 }
 
@@ -51,7 +51,7 @@ echo "Database created"
 echo ""
 echo "=== Step 2: Run migrations on cloud ==="
 # Use the Python migration runner pointed at cloud
-echo "Run: CLICKHOUSE_HOST=$CLOUD_HOST CLICKHOUSE_PORT=$CLOUD_PORT CLICKHOUSE_PASSWORD=\$CLOUD_PASS CLICKHOUSE_SECURE=true just migrate"
+echo "Run: CLICKHOUSE_HOST=$CH_CLOUD_HOST CLICKHOUSE_PORT=$CLOUD_PORT CLICKHOUSE_PASSWORD=\$CH_CLOUD_PASS CLICKHOUSE_SECURE=true just migrate"
 echo "(do this manually, then press Enter to continue)"
 read -r
 
@@ -89,7 +89,7 @@ ORDER BY total_bytes DESC FORMAT PrettyCompact"
 echo ""
 echo "=== Done! ==="
 echo "Update your .env:"
-echo "  CLICKHOUSE_HOST=${CLOUD_HOST}"
+echo "  CLICKHOUSE_HOST=${CH_CLOUD_HOST}"
 echo "  CLICKHOUSE_PORT=${CLOUD_PORT}"
 echo "  CLICKHOUSE_PASSWORD=<your-cloud-password>"
 echo "  CLICKHOUSE_SECURE=true"

@@ -112,25 +112,40 @@ async def _run_async(tickers: list[str], months: int, concurrency: int) -> None:
     ranges = _month_ranges(months)
     semaphore = asyncio.Semaphore(concurrency)
     start_time = time.monotonic()
+    completed = 0
+    total_rows = 0
+    lock = asyncio.Lock()
 
     logger.info("Polygon 1-min backfill: %d tickers × %d months, concurrency=%d", len(tickers), len(ranges), concurrency)
 
-    async with httpx.AsyncClient(timeout=60.0) as client:
-        for idx, ticker in enumerate(tickers, 1):
-            ticker_start = time.monotonic()
-            rows = await _backfill_ticker(client, ticker, ranges, semaphore)
-            elapsed = time.monotonic() - ticker_start
+    async def _process_ticker(client: httpx.AsyncClient, ticker: str) -> None:
+        nonlocal completed, total_rows
+        ticker_start = time.monotonic()
+        rows = await _backfill_ticker(client, ticker, ranges, semaphore)
+        elapsed = time.monotonic() - ticker_start
+        async with lock:
+            completed += 1
+            total_rows += rows
             logger.info(
-                "[%d/%d] %s: %s rows inserted (%.1fs)",
-                idx,
-                len(tickers),
-                ticker,
-                f"{rows:,}" if rows else "0",
-                elapsed,
+                "[%d/%d] %s: %s rows (%.1fs)",
+                completed, len(tickers), ticker,
+                f"{rows:,}" if rows else "0", elapsed,
             )
 
+    # Process tickers in batches (concurrency controls total HTTP requests,
+    # ticker_batch_size controls how many tickers run simultaneously)
+    ticker_batch_size = max(concurrency // 4, 5)
+
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        for i in range(0, len(tickers), ticker_batch_size):
+            batch = tickers[i : i + ticker_batch_size]
+            await asyncio.gather(*[_process_ticker(client, t) for t in batch])
+
     total_elapsed = time.monotonic() - start_time
-    logger.info("Polygon backfill complete in %.1f minutes", total_elapsed / 60)
+    logger.info(
+        "Polygon backfill complete: %s rows in %.1f minutes (%.0f rows/sec)",
+        f"{total_rows:,}", total_elapsed / 60, total_rows / max(total_elapsed, 1),
+    )
 
 
 def run_polygon_backfill(tickers: list[str], months: int = 48, concurrency: int = 10) -> None:
