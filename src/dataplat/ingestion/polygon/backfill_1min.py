@@ -24,6 +24,10 @@ from dataplat.transforms.validation import validate_ohlcv
 
 logger = logging.getLogger(__name__)
 
+# Silence httpx per-request logging
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
+
 POLYGON_BASE = "https://api.polygon.io/v2/aggs/ticker"
 
 
