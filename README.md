@@ -9,68 +9,70 @@ Part of the [Argus](https://github.com/3Epsilon) ecosystem. This is the **data i
 ## Architecture
 
 ```mermaid
-flowchart LR
-    subgraph Sources["Data Sources"]
-        SCHWAB["Schwab API\n(ongoing)"]
-        POLYGON["Polygon API\n(one-off backfill)"]
-        FED["Polygon Fed API\n(economy)"]
+flowchart TB
+    subgraph Sources[" "]
+        direction LR
+        SCHWAB("🔑 Schwab API\nDaily OHLCV · Options · Streaming")
+        POLYGON("📊 Polygon API\n1-min Backfill · Universe · Fundamentals")
+        FED("🏛️ Polygon Fed API\nYields · Inflation · Labor")
     end
 
-    subgraph Ingestion["Ingestion Layer"]
+    subgraph Pipelines[" "]
+        direction LR
+        OHLCV_PIPE["⚡ OHLCV Pipeline\nasync · 10 concurrent"]
+        FUND_PIPE["📋 Fundamentals\nper-ticker"]
+        ECON_PIPE["🌐 Economy\n4 API calls"]
+    end
+
+    subgraph ClickHouse["ClickHouse"]
         direction TB
-        OHLCV_PIPE["OHLCV Pipeline\n(async, 10 concurrent)"]
-        FUND_PIPE["Fundamentals Pipeline\n(per-ticker)"]
-        ECON_PIPE["Economy Pipeline\n(4 API calls)"]
+
+        subgraph Market["Market Data"]
+            direction LR
+            OHLCV[("ohlcv\n1-min bars")]
+            MV_5["5min mv"]
+            MV_15["15min mv"]
+            MV_1H["1h mv"]
+            MV_D["daily mv"]
+        end
+
+        subgraph Company["Company Data"]
+            direction LR
+            UNI[("universe")]
+            FIN[("financials")]
+            DIV[("dividends")]
+            SPLITS[("splits")]
+        end
+
+        subgraph Economy["Economy"]
+            direction LR
+            TREAS[("treasury_yields")]
+            INFL[("inflation")]
+            INFLE[("expectations")]
+            LABOR[("labor_market")]
+        end
     end
 
-    subgraph CH["ClickHouse"]
-        direction TB
-        OHLCV[("ohlcv\n1-min bars")]
-        MV_5["ohlcv_5min_mv"]
-        MV_15["ohlcv_15min_mv"]
-        MV_1H["ohlcv_1h_mv"]
-        MV_D["ohlcv_daily_mv"]
-        FIN[("financials")]
-        DIV[("dividends")]
-        SPLITS[("stock_splits")]
-        UNI[("universe")]
-        TREAS[("treasury_yields")]
-        INFL[("inflation")]
-        INFLE[("inflation_expectations")]
-        LABOR[("labor_market")]
-
-        OHLCV -->|auto| MV_5
-        OHLCV -->|auto| MV_15
-        OHLCV -->|auto| MV_1H
-        OHLCV -->|auto| MV_D
+    subgraph Consumers["Consumers"]
+        direction LR
+        MCP("🔌 MCP Server\nport 8811")
+        ARGUS("🤖 Argus LLM")
+        AGENTS("🕵️ Agents")
+        NB("📓 Notebooks")
     end
 
-    subgraph Consumers["Consumers (future)"]
-        MCP["MCP Server\n:8811"]
-        ARGUS["Argus LLM"]
-        AGENTS["Agents"]
-        NB["Notebooks"]
-    end
-
-    SCHWAB -->|daily candles| OHLCV_PIPE
-    POLYGON -->|1-min bars| OHLCV_PIPE
-    POLYGON -->|financials, dividends\nsplits, ticker details| FUND_PIPE
-    FED -->|yields, CPI, jobs| ECON_PIPE
+    SCHWAB --> OHLCV_PIPE
+    POLYGON --> OHLCV_PIPE
+    POLYGON --> FUND_PIPE
+    FED --> ECON_PIPE
 
     OHLCV_PIPE --> OHLCV
-    FUND_PIPE --> FIN
-    FUND_PIPE --> DIV
-    FUND_PIPE --> SPLITS
-    FUND_PIPE --> UNI
-    ECON_PIPE --> TREAS
-    ECON_PIPE --> INFL
-    ECON_PIPE --> INFLE
-    ECON_PIPE --> LABOR
+    OHLCV -.->|auto-aggregate| MV_5 & MV_15 & MV_1H & MV_D
+    FUND_PIPE --> UNI & FIN & DIV & SPLITS
+    ECON_PIPE --> TREAS & INFL & INFLE & LABOR
 
-    CH -->|Streamable HTTP| MCP
-    MCP --> ARGUS
-    MCP --> AGENTS
-    MCP --> NB
+    ClickHouse --> MCP
+    MCP --> ARGUS & AGENTS & NB
 ```
 
 ### Key Design Decisions
@@ -301,53 +303,90 @@ All commands use [just](https://github.com/casey/just):
 
 ```mermaid
 erDiagram
-    ohlcv ||--|{ ohlcv_5min_mv : "auto-aggregates"
-    ohlcv ||--|{ ohlcv_15min_mv : "auto-aggregates"
-    ohlcv ||--|{ ohlcv_1h_mv : "auto-aggregates"
-    ohlcv ||--|{ ohlcv_daily_mv : "auto-aggregates"
+    universe ||--o{ ohlcv : ticker
     universe ||--o{ financials : ticker
     universe ||--o{ dividends : ticker
     universe ||--o{ stock_splits : ticker
-    universe ||--o{ ohlcv : ticker
+    ohlcv ||--|{ ohlcv_5min_mv : auto
+    ohlcv ||--|{ ohlcv_15min_mv : auto
+    ohlcv ||--|{ ohlcv_1h_mv : auto
+    ohlcv ||--|{ ohlcv_daily_mv : auto
+
+    universe {
+        String ticker PK
+        String name
+        String sector
+        String exchange
+        Float64 market_cap
+        String description
+        String cik
+    }
 
     ohlcv {
-        String ticker
-        DateTime64 timestamp
+        String ticker FK
+        DateTime64 timestamp PK
         Float64 open
         Float64 high
         Float64 low
         Float64 close
         UInt64 volume
+        Float64 vwap
+        String source
     }
+
     financials {
-        String ticker
-        Date period_end
-        String fiscal_period
+        String ticker FK
+        Date period_end PK
+        String fiscal_period PK
         Float64 revenue
+        Float64 gross_profit
+        Float64 operating_income
         Float64 net_income
         Float64 diluted_eps
         Float64 total_assets
         Float64 total_equity
+        Float64 operating_cash_flow
+        String raw_json
     }
-    universe {
-        String ticker
-        String name
-        String sector
-        Float64 market_cap
+
+    dividends {
+        String ticker FK
+        Date ex_dividend_date PK
+        Float64 cash_amount
+        UInt8 frequency
+        String dividend_type
     }
+
+    stock_splits {
+        String ticker FK
+        Date execution_date PK
+        Float64 split_from
+        Float64 split_to
+    }
+
     treasury_yields {
-        Date date
+        Date date PK
+        Float64 yield_1_year
         Float64 yield_2_year
+        Float64 yield_5_year
         Float64 yield_10_year
+        Float64 yield_30_year
     }
+
     inflation {
-        Date date
+        Date date PK
         Float64 cpi
+        Float64 cpi_core
         Float64 pce
+        Float64 pce_core
     }
+
     labor_market {
-        Date date
+        Date date PK
         Float64 unemployment_rate
+        Float64 participation_rate
+        Float64 avg_hourly_earnings
+        Float64 job_openings
     }
 ```
 
