@@ -1,6 +1,8 @@
 # Argus DataPlat — Task Runner
 # Install just: https://github.com/casey/just
 
+set dotenv-load
+
 # Start ClickHouse
 up:
     docker compose up -d
