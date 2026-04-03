@@ -10,18 +10,18 @@ Part of the [Argus](https://github.com/3Epsilon) ecosystem. This is the **data i
 
 ```mermaid
 flowchart TB
-    subgraph Sources[" "]
+    subgraph Sources["Data Sources"]
         direction LR
-        SCHWAB("🔑 Schwab API\nDaily OHLCV · Options · Streaming")
-        POLYGON("📊 Polygon API\n1-min Backfill · Universe · Fundamentals")
-        FED("🏛️ Polygon Fed API\nYields · Inflation · Labor")
+        SCHWAB("Schwab API\nDaily OHLCV · Options · Streaming")
+        POLYGON("Polygon API\n1-min Backfill · Universe · Fundamentals")
+        FED("Polygon Fed API\nYields · Inflation · Labor")
     end
 
-    subgraph Pipelines[" "]
+    subgraph Pipelines["Ingestion Pipelines"]
         direction LR
-        OHLCV_PIPE["⚡ OHLCV Pipeline\nasync · 10 concurrent"]
-        FUND_PIPE["📋 Fundamentals\nper-ticker"]
-        ECON_PIPE["🌐 Economy\n4 API calls"]
+        OHLCV_PIPE["OHLCV Pipeline\nasync · 10 concurrent"]
+        FUND_PIPE["Fundamentals\nper-ticker"]
+        ECON_PIPE["Economy\n4 API calls"]
     end
 
     subgraph ClickHouse["ClickHouse"]
@@ -55,10 +55,10 @@ flowchart TB
 
     subgraph Consumers["Consumers"]
         direction LR
-        MCP("🔌 MCP Server\nport 8811")
-        ARGUS("🤖 Argus LLM")
-        AGENTS("🕵️ Agents")
-        NB("📓 Notebooks")
+        MCP("MCP Server\nport 8811")
+        ARGUS("Argus LLM")
+        AGENTS("Agents")
+        NB("Notebooks")
     end
 
     SCHWAB --> OHLCV_PIPE
@@ -73,6 +73,33 @@ flowchart TB
 
     ClickHouse --> MCP
     MCP --> ARGUS & AGENTS & NB
+
+    style Sources fill:#2d333b,stroke:#8b949e,color:#e6edf3
+    style Pipelines fill:#1c2128,stroke:#8b949e,color:#e6edf3
+    style ClickHouse fill:#0d1117,stroke:#58a6ff,color:#e6edf3,stroke-width:2px
+    style Market fill:#161b22,stroke:#3fb950,color:#e6edf3
+    style Company fill:#161b22,stroke:#d29922,color:#e6edf3
+    style Economy fill:#161b22,stroke:#bc8cff,color:#e6edf3
+    style Consumers fill:#1c2128,stroke:#8b949e,color:#e6edf3
+
+    style SCHWAB fill:#238636,stroke:#3fb950,color:#fff
+    style POLYGON fill:#1f6feb,stroke:#58a6ff,color:#fff
+    style FED fill:#8957e5,stroke:#bc8cff,color:#fff
+
+    style OHLCV_PIPE fill:#0d419d,stroke:#58a6ff,color:#e6edf3
+    style FUND_PIPE fill:#0d419d,stroke:#58a6ff,color:#e6edf3
+    style ECON_PIPE fill:#0d419d,stroke:#58a6ff,color:#e6edf3
+
+    style OHLCV fill:#238636,stroke:#3fb950,color:#fff
+    style MV_5 fill:#1a4721,stroke:#3fb950,color:#e6edf3
+    style MV_15 fill:#1a4721,stroke:#3fb950,color:#e6edf3
+    style MV_1H fill:#1a4721,stroke:#3fb950,color:#e6edf3
+    style MV_D fill:#1a4721,stroke:#3fb950,color:#e6edf3
+
+    style MCP fill:#da3633,stroke:#f85149,color:#fff
+    style ARGUS fill:#30363d,stroke:#8b949e,color:#e6edf3
+    style AGENTS fill:#30363d,stroke:#8b949e,color:#e6edf3
+    style NB fill:#30363d,stroke:#8b949e,color:#e6edf3
 ```
 
 ### Key Design Decisions
