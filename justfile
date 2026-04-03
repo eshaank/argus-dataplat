@@ -22,8 +22,18 @@ migrate:
     uv run python -m dataplat.cli.migrate
 
 # Backfill OHLCV data
+# Examples:
+#   just backfill --source polygon --tickers AAPL,MSFT --months 48
+#   just backfill --source polygon --universe spy --months 48
+#   just backfill --source polygon --universe qqq
+#   just backfill --source polygon --universe all --concurrency 20
+#   just backfill --source schwab --universe spy --years 20
 backfill *ARGS:
     uv run python -m dataplat.cli.backfill {{ARGS}}
+
+# Fetch all active US equity tickers from Polygon → universes/all.txt
+fetch-universe:
+    uv run python src/dataplat/ingestion/polygon/universes/fetch_all.py
 
 # Seed the universe table
 seed-universe:

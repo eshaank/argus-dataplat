@@ -32,3 +32,6 @@ clickhouse_data/
 
 # Tasks / scratch
 tasks/
+
+# Generated universe file (fetched from Polygon)
+src/dataplat/ingestion/polygon/universes/all.txt
