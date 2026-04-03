@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS universe (
     name         String,
     type         LowCardinality(String),
     exchange     LowCardinality(String),
-    sector       Nullable(LowCardinality(String)),
-    sic_code     Nullable(LowCardinality(String)),
+    sector       LowCardinality(Nullable(String)),
+    sic_code     LowCardinality(Nullable(String)),
     market_cap   Nullable(Float64),
     active       Bool                     DEFAULT true,
     updated_at   DateTime                 DEFAULT now()

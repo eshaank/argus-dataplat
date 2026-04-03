@@ -13,9 +13,9 @@ AS SELECT
     max(high)                       AS high,
     min(low)                        AS low,
     argMax(close, timestamp)        AS close,
-    sum(volume)                     AS volume,
-    sumIf(volume * vwap, vwap IS NOT NULL)
-        / nullIf(sumIf(volume, vwap IS NOT NULL), 0) AS vwap,
+    sum(volume)                     AS total_volume,
+    sumIf(volume * vwap, isNotNull(vwap))
+        / nullIf(sumIf(volume, isNotNull(vwap)), 0) AS vwap,
     sum(transactions)               AS transactions,
     min(source)                     AS source
 FROM ohlcv
@@ -33,9 +33,9 @@ AS SELECT
     max(high)                          AS high,
     min(low)                           AS low,
     argMax(close, timestamp)           AS close,
-    sum(volume)                        AS volume,
-    sumIf(volume * vwap, vwap IS NOT NULL)
-        / nullIf(sumIf(volume, vwap IS NOT NULL), 0) AS vwap,
+    sum(volume)                        AS total_volume,
+    sumIf(volume * vwap, isNotNull(vwap))
+        / nullIf(sumIf(volume, isNotNull(vwap)), 0) AS vwap,
     sum(transactions)                  AS transactions,
     min(source)                        AS source
 FROM ohlcv
@@ -53,9 +53,9 @@ AS SELECT
     max(high)                AS high,
     min(low)                 AS low,
     argMax(close, timestamp) AS close,
-    sum(volume)              AS volume,
-    sumIf(volume * vwap, vwap IS NOT NULL)
-        / nullIf(sumIf(volume, vwap IS NOT NULL), 0) AS vwap,
+    sum(volume)              AS total_volume,
+    sumIf(volume * vwap, isNotNull(vwap))
+        / nullIf(sumIf(volume, isNotNull(vwap)), 0) AS vwap,
     sum(transactions)        AS transactions,
     min(source)              AS source
 FROM ohlcv
@@ -73,9 +73,9 @@ AS SELECT
     max(high)                AS high,
     min(low)                 AS low,
     argMax(close, timestamp) AS close,
-    sum(volume)              AS volume,
-    sumIf(volume * vwap, vwap IS NOT NULL)
-        / nullIf(sumIf(volume, vwap IS NOT NULL), 0) AS vwap,
+    sum(volume)              AS total_volume,
+    sumIf(volume * vwap, isNotNull(vwap))
+        / nullIf(sumIf(volume, isNotNull(vwap)), 0) AS vwap,
     sum(transactions)        AS transactions,
     min(source)              AS source
 FROM ohlcv
