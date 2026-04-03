@@ -33,6 +33,7 @@ def get_client(*, database: str | None = None) -> Client:
             username=settings.clickhouse_user,
             password=settings.clickhouse_password,
             database=database or settings.clickhouse_database,
+            secure=settings.clickhouse_secure,
         )
         if database is not None:
             return client  # one-off, don't cache

@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     clickhouse_user: str = "default"
     clickhouse_password: str = ""
     clickhouse_database: str = "dataplat"
+    clickhouse_secure: bool = False  # True for ClickHouse Cloud (TLS)
 
     # ── Polygon (reference data + one-off backfill only) ────
     polygon_api_key: str = ""
