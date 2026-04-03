@@ -62,9 +62,14 @@ fix:
     uv run ruff check --fix src/ tests/
     uv run ruff format src/ tests/
 
-# ClickHouse interactive shell
+# ClickHouse interactive shell (local Docker)
 ch-shell:
     @docker compose exec clickhouse clickhouse-client -d dataplat
+
+# ClickHouse interactive shell (cloud — requires clickhouse client installed)
+# Install: brew install clickhouse
+ch-cloud:
+    @clickhouse client --host "$CLICKHOUSE_HOST" --port 9440 --secure --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" --database dataplat
 
 # Check ClickHouse is healthy
 ch-ping:
