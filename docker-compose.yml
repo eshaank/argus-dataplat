@@ -1,0 +1,23 @@
+# Local development: ClickHouse analytical store
+# Usage: docker compose up -d
+#
+# Redpanda (Kafka) will be added here in a future phase.
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    environment:
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: local_dev_clickhouse
+      CLICKHOUSE_DB: dataplat
+    ports:
+      - "8123:8123"   # HTTP interface
+      - "9000:9000"   # Native TCP
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+volumes:
+  clickhouse_data:

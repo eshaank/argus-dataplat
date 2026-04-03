@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.venv/
+
+# Environment
+.env
+.schwab_token.json
+.schwab_tokens.db
+*.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# uv
+uv.lock
+
+# ClickHouse data (if running locally outside docker)
+clickhouse_data/
+
+# Tasks / scratch
+tasks/
