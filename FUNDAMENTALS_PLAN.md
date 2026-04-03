@@ -10,31 +10,35 @@ All data comes from Polygon/Massive API. These are **reference and fundamental d
 
 ### Company Data
 
-| Endpoint | API Path | What It Contains | Records (SPY) | Frequency |
-|---|---|---|---|---|
-| **Financials** | `/vX/reference/financials` | Income statement, balance sheet, cash flow, comprehensive income | ~10K | Quarterly filings |
-| **Dividends** | `/v3/reference/dividends` | Cash dividends with all dates, amounts, types | ~10K | Per-event |
-| **Stock Splits** | `/v3/reference/splits` | Split ratio and execution date | ~500 | Per-event (rare) |
-| **Ticker Details** | `/v3/reference/tickers/{ticker}` | Company description, SIC, employees, market cap, address, CIK, FIGI | 500 | Enrichment (one-time + refresh) |
+
+| Endpoint           | API Path                         | What It Contains                                                    | Records (SPY) | Frequency                       |
+| ------------------ | -------------------------------- | ------------------------------------------------------------------- | ------------- | ------------------------------- |
+| **Financials**     | `/vX/reference/financials`       | Income statement, balance sheet, cash flow, comprehensive income    | ~10K          | Quarterly filings               |
+| **Dividends**      | `/v3/reference/dividends`        | Cash dividends with all dates, amounts, types                       | ~10K          | Per-event                       |
+| **Stock Splits**   | `/v3/reference/splits`           | Split ratio and execution date                                      | ~500          | Per-event (rare)                |
+| **Ticker Details** | `/v3/reference/tickers/{ticker}` | Company description, SIC, employees, market cap, address, CIK, FIGI | 500           | Enrichment (one-time + refresh) |
+
 
 ### Economy Data
 
-| Endpoint | API Path | Fields | Records | History |
-|---|---|---|---|---|
-| **Treasury Yields** | `/fed/v1/treasury-yields` | 1mo, 3mo, 1yr, 2yr, 5yr, 10yr, 30yr yields | 16,046 | 1962–present (daily) |
-| **Inflation** | `/fed/v1/inflation` | CPI, CPI core, PCE, PCE core, PCE spending | 950 | 1947–present (monthly) |
-| **Inflation Expectations** | `/fed/v1/inflation-expectations` | Market 5yr/10yr, forward 5-10yr, model 1/5/10/30yr | 531 | 1982–present (monthly) |
-| **Labor Market** | `/fed/v1/labor-market` | Unemployment rate, participation rate, avg hourly earnings, job openings | 938 | 1948–present (monthly) |
+
+| Endpoint                   | API Path                         | Fields                                                                   | Records | History                |
+| -------------------------- | -------------------------------- | ------------------------------------------------------------------------ | ------- | ---------------------- |
+| **Treasury Yields**        | `/fed/v1/treasury-yields`        | 1mo, 3mo, 1yr, 2yr, 5yr, 10yr, 30yr yields                               | 16,046  | 1962–present (daily)   |
+| **Inflation**              | `/fed/v1/inflation`              | CPI, CPI core, PCE, PCE core, PCE spending                               | 950     | 1947–present (monthly) |
+| **Inflation Expectations** | `/fed/v1/inflation-expectations` | Market 5yr/10yr, forward 5-10yr, model 1/5/10/30yr                       | 531     | 1982–present (monthly) |
+| **Labor Market**           | `/fed/v1/labor-market`           | Unemployment rate, participation rate, avg hourly earnings, job openings | 938     | 1948–present (monthly) |
+
 
 ---
 
 ## Schema Design Principles
 
 1. **Wide tables, not normalized.** ClickHouse is columnar — unused columns cost zero I/O. A wide `financials` table with income + balance sheet + cash flow columns is faster than 3 tables with joins.
-2. **`universe` as the dimension table.** Join on `ticker` when you need company names, sectors, etc. ClickHouse loads the small table (500 rows) into memory — instant.
+2. `**universe` as the dimension table.** Join on `ticker` when you need company names, sectors, etc. ClickHouse loads the small table (500 rows) into memory — instant.
 3. **Structured columns for top fields, JSON overflow for the rest.** The 30 most-queried financial fields get their own columns for direct SQL. Everything else lives in `raw_json`.
 4. **Dedicated economy tables, not generic.** Treasury yields, inflation, etc. each have their own table with named columns. The existing `economic_series` table (migration 003) stays for future FRED integration.
-5. **`ReplacingMergeTree` everywhere.** Safe re-ingestion — run the backfill again and duplicates get merged away.
+5. `**ReplacingMergeTree` everywhere.** Safe re-ingestion — run the backfill again and duplicates get merged away.
 
 ---
 
@@ -100,6 +104,7 @@ PARTITION BY toYear(period_end)
 ```
 
 **Why this shape:**
+
 - 30 structured columns cover the fields you'd query 95% of the time: revenue, EPS, margins, debt, cash flow
 - `raw_json` stores the full Polygon response for anything not extracted (comprehensive income details, per-share breakdowns, etc.)
 - `ORDER BY (ticker, period_end, fiscal_period)` — fast range scans per ticker over time
@@ -345,16 +350,18 @@ just backfill-fundamentals --universe spy --economy
 
 ## Migration Summary
 
-| Migration | Table | Action | Notes |
-|---|---|---|---|
-| `004_financials.sql` | `financials` | **Rewrite** (drops old `fundamentals`) | Wide table: income + balance + cash flow + JSON overflow |
-| `002b_universe_details.sql` | `universe` | **ALTER TABLE** (add columns) | Description, employees, CIK, FIGI, etc. |
-| `007_dividends.sql` | `dividends` | **New** | Per-ticker dividend history |
-| `008_stock_splits.sql` | `stock_splits` | **New** | Per-ticker split history |
-| `009_treasury_yields.sql` | `treasury_yields` | **New** | Daily yields, 1962–present |
-| `010_inflation.sql` | `inflation` | **New** | Monthly CPI/PCE, 1947–present |
-| `011_inflation_expectations.sql` | `inflation_expectations` | **New** | Monthly, 1982–present |
-| `012_labor_market.sql` | `labor_market` | **New** | Monthly, 1948–present |
+
+| Migration                        | Table                    | Action                                 | Notes                                                    |
+| -------------------------------- | ------------------------ | -------------------------------------- | -------------------------------------------------------- |
+| `004_financials.sql`             | `financials`             | **Rewrite** (drops old `fundamentals`) | Wide table: income + balance + cash flow + JSON overflow |
+| `002b_universe_details.sql`      | `universe`               | **ALTER TABLE** (add columns)          | Description, employees, CIK, FIGI, etc.                  |
+| `007_dividends.sql`              | `dividends`              | **New**                                | Per-ticker dividend history                              |
+| `008_stock_splits.sql`           | `stock_splits`           | **New**                                | Per-ticker split history                                 |
+| `009_treasury_yields.sql`        | `treasury_yields`        | **New**                                | Daily yields, 1962–present                               |
+| `010_inflation.sql`              | `inflation`              | **New**                                | Monthly CPI/PCE, 1947–present                            |
+| `011_inflation_expectations.sql` | `inflation_expectations` | **New**                                | Monthly, 1982–present                                    |
+| `012_labor_market.sql`           | `labor_market`           | **New**                                | Monthly, 1948–present                                    |
+
 
 **Total new API calls for full backfill:** ~2,504 (2,500 company + 4 economy)
 **Estimated time:** ~15 minutes
@@ -399,3 +406,4 @@ JOIN labor_market l ON toStartOfMonth(t.date) = l.date
 WHERE t.date >= '2019-01-01'
 ORDER BY t.date;
 ```
+

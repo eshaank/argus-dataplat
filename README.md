@@ -99,10 +99,16 @@ This creates the `dataplat` database with all tables and materialized views:
 | `ohlcv_15min_mv` | Auto-aggregated 15-minute bars |
 | `ohlcv_1h_mv` | Auto-aggregated 1-hour bars |
 | `ohlcv_daily_mv` | Auto-aggregated daily bars |
-| `universe` | Ticker metadata (symbol, name, exchange, sector) |
-| `economic_series` | FRED economic indicators |
-| `fundamentals` | Financial statements (SEC EDGAR) |
-| `option_chains` | Option snapshots (Schwab) |
+| `universe` | Ticker metadata (symbol, name, exchange, sector, description, CIK) |
+| `financials` | Structured financial statements (income, balance, cash flow + JSON overflow) |
+| `dividends` | Historical cash dividends |
+| `stock_splits` | Historical stock splits |
+| `treasury_yields` | US Treasury yields (1962–present, daily) |
+| `inflation` | CPI and PCE metrics (1947–present, monthly) |
+| `inflation_expectations` | Market and model-based expectations (1982–present) |
+| `labor_market` | Unemployment, participation, earnings (1948–present) |
+| `economic_series` | Generic FRED series (future) |
+| `option_chains` | Option snapshots (future, Schwab) |
 
 ### 5. Backfill data
 
@@ -178,28 +184,27 @@ argus-dataplat/
 │   ├── db/
 │   │   ├── client.py              # ClickHouse client factory
 │   │   ├── migrate.py             # Schema migration runner
-│   │   └── migrations/            # Numbered SQL migration files
-│   │       ├── 001_ohlcv.sql
-│   │       ├── 002_universe.sql
-│   │       ├── 003_economic_series.sql
-│   │       ├── 004_fundamentals.sql
-│   │       ├── 005_option_chains.sql
-│   │       └── 006_materialized_views.sql
+│   │   └── migrations/            # 12 numbered SQL migration files
 │   ├── ingestion/
 │   │   ├── base.py                # Abstract IngestPipeline
 │   │   ├── schwab/
 │   │   │   ├── client.py          # schwabdev wrapper
 │   │   │   └── historical.py      # Daily OHLCV backfill
 │   │   ├── polygon/
-│   │   │   └── backfill_1min.py   # One-off 1-min backfill
-│   │   └── fred/                  # (future) Economic data
+│   │   │   ├── backfill_1min.py   # One-off 1-min OHLCV backfill
+│   │   │   ├── fundamentals.py    # Financials, dividends, splits, ticker details
+│   │   │   ├── economy.py         # Treasury yields, inflation, labor market
+│   │   │   └── universes/         # SPY, QQQ ticker lists + fetch_all.py
+│   │   └── fred/                  # (future)
 │   ├── transforms/
 │   │   ├── ohlcv.py               # Polygon/Schwab → Polars DataFrame
 │   │   └── validation.py          # Schema enforcement, dedup
 │   └── cli/
 │       ├── migrate.py             # python -m dataplat.cli.migrate
-│       └── backfill.py            # python -m dataplat.cli.backfill
+│       ├── backfill.py            # python -m dataplat.cli.backfill
+│       └── backfill_fundamentals.py # python -m dataplat.cli.backfill_fundamentals
 │
+├── queries/                       # 12 saved SQL queries (regime, macro, fundamentals)
 ├── tests/
 │   ├── conftest.py                # Shared fixtures
 │   └── test_transforms/
@@ -222,7 +227,10 @@ All commands use [just](https://github.com/casey/just):
 | `just reset` | Nuke all data and re-migrate |
 | `just migrate` | Apply pending schema migrations |
 | `just backfill --source polygon --tickers AAPL` | Polygon 1-min backfill |
+| `just backfill --source polygon --universe spy` | Polygon 1-min backfill for S&P 500 |
 | `just backfill --source schwab --tickers AAPL --years 20` | Schwab daily backfill |
+| `just backfill-fundamentals --universe spy` | Financials, dividends, splits for SPY |
+| `just backfill-fundamentals --economy` | Treasury yields, inflation, labor market |
 | `just ch-shell` | Interactive ClickHouse SQL shell |
 | `just ch-ping` | Health check |
 | `just ch-stats` | Show table row counts and sizes |
