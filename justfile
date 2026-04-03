@@ -45,7 +45,7 @@ fix:
 
 # ClickHouse interactive shell
 ch-shell:
-    docker exec -it $$(docker compose ps -q clickhouse) clickhouse-client -d dataplat
+    @docker compose exec clickhouse clickhouse-client -d dataplat
 
 # Check ClickHouse is healthy
 ch-ping:
