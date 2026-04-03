@@ -8,23 +8,69 @@ Part of the [Argus](https://github.com/3Epsilon) ecosystem. This is the **data i
 
 ## Architecture
 
-```
-Data Sources                          DataPlat (this repo)                    Consumers
-─────────────                         ──────────────────                      ─────────
-                                    ┌───────────────────┐
-  Schwab API ──── daily OHLCV ────▸ │                   │
-  (ongoing)       options, quotes   │    ClickHouse     │ ◂──── MCP Server ──▸ Argus LLM
-                                    │                   │       (future)       Agents
-  Polygon API ─── 1-min backfill ─▸ │  ohlcv (1-min)   │                      Notebooks
-  (one-off)       universe seed     │  ohlcv_5min_mv    │
-                                    │  ohlcv_15min_mv   │
-  FRED ────────── economic data ──▸ │  ohlcv_1h_mv      │
-                                    │  ohlcv_daily_mv   │
-  SEC EDGAR ───── financials ─────▸ │  universe         │
-  (future)                          │  economic_series   │
-                                    │  fundamentals      │
-                                    │  option_chains     │
-                                    └───────────────────┘
+```mermaid
+flowchart LR
+    subgraph Sources["Data Sources"]
+        SCHWAB["Schwab API\n(ongoing)"]
+        POLYGON["Polygon API\n(one-off backfill)"]
+        FED["Polygon Fed API\n(economy)"]
+    end
+
+    subgraph Ingestion["Ingestion Layer"]
+        direction TB
+        OHLCV_PIPE["OHLCV Pipeline\n(async, 10 concurrent)"]
+        FUND_PIPE["Fundamentals Pipeline\n(per-ticker)"]
+        ECON_PIPE["Economy Pipeline\n(4 API calls)"]
+    end
+
+    subgraph CH["ClickHouse"]
+        direction TB
+        OHLCV[("ohlcv\n1-min bars")]
+        MV_5["ohlcv_5min_mv"]
+        MV_15["ohlcv_15min_mv"]
+        MV_1H["ohlcv_1h_mv"]
+        MV_D["ohlcv_daily_mv"]
+        FIN[("financials")]
+        DIV[("dividends")]
+        SPLITS[("stock_splits")]
+        UNI[("universe")]
+        TREAS[("treasury_yields")]
+        INFL[("inflation")]
+        INFLE[("inflation_expectations")]
+        LABOR[("labor_market")]
+
+        OHLCV -->|auto| MV_5
+        OHLCV -->|auto| MV_15
+        OHLCV -->|auto| MV_1H
+        OHLCV -->|auto| MV_D
+    end
+
+    subgraph Consumers["Consumers (future)"]
+        MCP["MCP Server\n:8811"]
+        ARGUS["Argus LLM"]
+        AGENTS["Agents"]
+        NB["Notebooks"]
+    end
+
+    SCHWAB -->|daily candles| OHLCV_PIPE
+    POLYGON -->|1-min bars| OHLCV_PIPE
+    POLYGON -->|financials, dividends\nsplits, ticker details| FUND_PIPE
+    FED -->|yields, CPI, jobs| ECON_PIPE
+
+    OHLCV_PIPE --> OHLCV
+    FUND_PIPE --> FIN
+    FUND_PIPE --> DIV
+    FUND_PIPE --> SPLITS
+    FUND_PIPE --> UNI
+    ECON_PIPE --> TREAS
+    ECON_PIPE --> INFL
+    ECON_PIPE --> INFLE
+    ECON_PIPE --> LABOR
+
+    CH -->|Streamable HTTP| MCP
+    MCP --> ARGUS
+    MCP --> AGENTS
+    MCP --> NB
 ```
 
 ### Key Design Decisions
@@ -253,14 +299,56 @@ All commands use [just](https://github.com/casey/just):
 
 ## ClickHouse Schema
 
-The `ohlcv` table stores 1-minute bars as the ground truth. Materialized views auto-aggregate on every insert:
+```mermaid
+erDiagram
+    ohlcv ||--|{ ohlcv_5min_mv : "auto-aggregates"
+    ohlcv ||--|{ ohlcv_15min_mv : "auto-aggregates"
+    ohlcv ||--|{ ohlcv_1h_mv : "auto-aggregates"
+    ohlcv ||--|{ ohlcv_daily_mv : "auto-aggregates"
+    universe ||--o{ financials : ticker
+    universe ||--o{ dividends : ticker
+    universe ||--o{ stock_splits : ticker
+    universe ||--o{ ohlcv : ticker
 
-```
-ohlcv (1-min base)
-  ├── ohlcv_5min_mv    (auto)
-  ├── ohlcv_15min_mv   (auto)
-  ├── ohlcv_1h_mv      (auto)
-  └── ohlcv_daily_mv   (auto)
+    ohlcv {
+        String ticker
+        DateTime64 timestamp
+        Float64 open
+        Float64 high
+        Float64 low
+        Float64 close
+        UInt64 volume
+    }
+    financials {
+        String ticker
+        Date period_end
+        String fiscal_period
+        Float64 revenue
+        Float64 net_income
+        Float64 diluted_eps
+        Float64 total_assets
+        Float64 total_equity
+    }
+    universe {
+        String ticker
+        String name
+        String sector
+        Float64 market_cap
+    }
+    treasury_yields {
+        Date date
+        Float64 yield_2_year
+        Float64 yield_10_year
+    }
+    inflation {
+        Date date
+        Float64 cpi
+        Float64 pce
+    }
+    labor_market {
+        Date date
+        Float64 unemployment_rate
+    }
 ```
 
 **Compression:** `CODEC(Delta, ZSTD(1))` on all numeric columns — benchmarked at ~21 bytes/row. For 3,000 tickers × 4 years of 1-min data: **~43 GB on disk**.
@@ -300,13 +388,14 @@ just fix
 
 ## Roadmap
 
-- [x] ClickHouse schema + migrations
-- [x] Polygon 1-min backfill pipeline
-- [x] Schwab daily backfill pipeline
+- [x] ClickHouse schema + migrations (12 migrations)
+- [x] Polygon 1-min OHLCV backfill pipeline (async, concurrent)
+- [x] Schwab daily OHLCV backfill pipeline
 - [x] Materialized views (5-min, 15-min, hourly, daily)
-- [ ] Universe seeding from Polygon reference API
-- [ ] FRED economic data ingestion
-- [ ] SEC EDGAR fundamentals parsing
+- [x] Fundamentals backfill (financials, dividends, splits, ticker details)
+- [x] Economy backfill (treasury yields, inflation, expectations, labor market)
+- [x] Universe files (SPY, QQQ, dynamic fetch-all)
+- [x] Query library (12 saved queries: regime, macro, fundamentals, cross-asset)
 - [ ] Schwab streaming → Kafka → ClickHouse
 - [ ] MCP server (tool-based API for Argus LLM)
 - [ ] Argus MCP client integration
