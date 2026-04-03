@@ -35,6 +35,15 @@ backfill *ARGS:
 fetch-universe:
     uv run python src/dataplat/ingestion/polygon/universes/fetch_all.py
 
+# Backfill fundamentals + economy data from Polygon
+# Examples:
+#   just backfill-fundamentals --economy
+#   just backfill-fundamentals --universe spy
+#   just backfill-fundamentals --universe spy --economy
+#   just backfill-fundamentals --tickers AAPL,MSFT
+backfill-fundamentals *ARGS:
+    uv run python -m dataplat.cli.backfill_fundamentals {{ARGS}}
+
 # Seed the universe table
 seed-universe:
     uv run python scripts/seed_universe.py
