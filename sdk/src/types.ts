@@ -64,12 +64,14 @@ export type FinancialTimeframe = 'annual' | 'quarterly';
 
 export interface Financial {
   ticker: string;
-  periodStart: string;
+  cik: string | null;
+  periodStart: string | null;
   periodEnd: string;
   fiscalYear: string;
   fiscalPeriod: string;
-  timeframe: string;
-  filingDate: string | null;
+  formType: string;
+  filedDate: string | null;
+  accessionNumber: string | null;
 
   // Income statement
   revenue: number | null;
@@ -80,11 +82,11 @@ export interface Financial {
   netIncome: number | null;
   basicEps: number | null;
   dilutedEps: number | null;
-  basicShares: number | null;
-  dilutedShares: number | null;
   researchAndDev: number | null;
   sgaExpenses: number | null;
   incomeTax: number | null;
+  interestExpense: number | null;
+  ebitda: number | null;
 
   // Balance sheet
   totalAssets: number | null;
@@ -94,15 +96,33 @@ export interface Financial {
   currentLiabilities: number | null;
   noncurrentLiabilities: number | null;
   totalEquity: number | null;
+  retainedEarnings: number | null;
   longTermDebt: number | null;
+  shortTermDebt: number | null;
+  cashAndEquivalents: number | null;
   inventory: number | null;
+  accountsReceivable: number | null;
   accountsPayable: number | null;
+  goodwill: number | null;
 
   // Cash flow
   operatingCashFlow: number | null;
   investingCashFlow: number | null;
   financingCashFlow: number | null;
-  netCashFlow: number | null;
+  capex: number | null;
+  dividendsPaid: number | null;
+  depreciationAmortization: number | null;
+
+  // Dilution & shares
+  sharesOutstanding: number | null;
+  weightedAvgSharesBasic: number | null;
+  weightedAvgSharesDiluted: number | null;
+  stockBasedCompensation: number | null;
+  buybackValue: number | null;
+  dividendsPerShare: number | null;
+
+  // Derived (computed by SDK for backward compat)
+  timeframe: 'annual' | 'quarterly';
 }
 
 export interface FinancialsParams {

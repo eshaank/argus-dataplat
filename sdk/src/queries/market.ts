@@ -62,7 +62,7 @@ export async function getTopMovers(
         ticker,
         close,
         round((close - prev_close) / prev_close * 100, 2) AS changePct,
-        total_volume AS volume
+        toFloat64(total_volume) AS volume
       FROM latest
       WHERE day = (SELECT max(day) FROM ohlcv_daily_mv)
         AND prev_close > 0
@@ -97,7 +97,7 @@ export async function getMostActive(
         ticker,
         close,
         round((close - prev_close) / prev_close * 100, 2) AS changePct,
-        total_volume AS volume
+        toFloat64(total_volume) AS volume
       FROM latest
       WHERE day = (SELECT max(day) FROM ohlcv_daily_mv)
         AND prev_close > 0
@@ -123,7 +123,7 @@ export async function getSectorPerformance(
   const sql = `
     WITH sector_map AS (
       SELECT ticker, ${SECTOR_CASE} AS sector
-      FROM universe
+      FROM universe FINAL
       WHERE sic_code IS NOT NULL AND sic_code != ''
     ),
     returns AS (
@@ -207,7 +207,7 @@ export async function getTreemapData(
       coalesce(u.market_cap, 0) AS marketCap,
       l.close,
       l.changePct
-    FROM universe u
+    FROM universe u FINAL
     JOIN latest l ON u.ticker = l.ticker
     WHERE u.sic_code IS NOT NULL AND u.sic_code != ''
       AND u.market_cap >= ${minMarketCap}
@@ -289,7 +289,7 @@ export async function getScreenerData(
     latest_prices AS (
       SELECT ticker, close,
         round((close - prev_close) / prev_close * 100, 2) AS changePct,
-        total_volume AS volume
+        toFloat64(total_volume) AS volume
       FROM prices
       WHERE day = (SELECT max(day) FROM ohlcv_daily_mv)
         AND prev_close > 0
@@ -302,7 +302,7 @@ export async function getScreenerData(
         argMax(gross_profit, period_end) AS grossProfit,
         argMax(diluted_eps, period_end) AS eps
       FROM financials
-      WHERE timeframe = 'annual'
+      WHERE fiscal_period = 'FY'
       GROUP BY ticker
     )
     SELECT
@@ -319,7 +319,7 @@ export async function getScreenerData(
       CASE WHEN f.revenue > 0 AND f.grossProfit IS NOT NULL THEN round(f.grossProfit / f.revenue * 100, 1) ELSE NULL END AS grossMargin,
       CASE WHEN f.revenue > 0 AND f.netIncome IS NOT NULL THEN round(f.netIncome / f.revenue * 100, 1) ELSE NULL END AS netMargin,
       CASE WHEN f.eps > 0 THEN round(p.close / f.eps, 1) ELSE NULL END AS pe
-    FROM universe u
+    FROM universe u FINAL
     JOIN latest_prices p ON u.ticker = p.ticker
     LEFT JOIN latest_fins f ON u.ticker = f.ticker
     WHERE u.sic_code IS NOT NULL AND u.sic_code != ''
