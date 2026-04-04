@@ -38,6 +38,9 @@ class Settings(BaseSettings):
     # ── FRED ────────────────────────────────────────────────
     fred_api_key: str = ""
 
+    # ── SEC EDGAR ───────────────────────────────────────────
+    sec_edgar_user_agent: str = ""  # Required: "YourName your@email.com"
+
 
 # Module-level singleton — import this everywhere.
 settings = Settings()
