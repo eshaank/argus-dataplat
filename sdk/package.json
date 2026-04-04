@@ -1,0 +1,23 @@
+{
+  "name": "@dataplat/sdk",
+  "version": "0.1.0",
+  "description": "Typed TypeScript SDK for ClickHouse DataPlat",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "files": ["dist"],
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}

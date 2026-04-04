@@ -35,3 +35,6 @@ tasks/
 
 # Generated universe file (fetched from Polygon)
 src/dataplat/ingestion/polygon/universes/all.txt
+creds.txt
+sdk/dist/
+sdk/node_modules/
