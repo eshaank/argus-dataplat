@@ -1,0 +1,16 @@
+{
+  "name": "add-agent-role-variant",
+  "task": "Create a new 'fact-checker' agent that verifies claims by cross-referencing multiple data sources. It should have access to all 17 data tools plus query_data, use GLM-5, 25 turns, $0.50 budget, 6 minutes wall clock.",
+  "context_files": [
+    "electron/agents/agent-roles.ts",
+    "electron/agents/sub-agents/data-analyst.ts",
+    "electron/agents/shared-extensions/argus-data-tools.ts"
+  ],
+  "assertions": [
+    "A 'fact-checker' entry is added to BUDGETS with turns: 25, costUsd: 0.50, wallClockMs: 360000",
+    "The getToolNamesForRole() function returns all 17 data tool names plus 'query_data' for the 'fact-checker' role",
+    "A new sub-agent file is created at electron/agents/sub-agents/fact-checker.ts with a factory function and a runner function",
+    "The sub-agent file uses dynamic import() or pi-imports.ts helper for Pi packages (never static import for pi-ai runtime)",
+    "The runner function calls attachSafetyLimits() from safety-limits.ts to enforce the budget"
+  ]
+}

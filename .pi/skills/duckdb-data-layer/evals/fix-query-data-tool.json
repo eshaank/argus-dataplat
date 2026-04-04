@@ -1,0 +1,15 @@
+{
+  "name": "fix-query-data-tool",
+  "task": "Fix the query_data tool to support UNION queries. Currently it rejects UNION because the SQL validation only allows queries starting with SELECT or WITH. Users need UNION to combine data across session tables like session_income_statements and session_balance_sheets.",
+  "context_files": [
+    "electron/domains/chat/data-cache.ts",
+    "electron/__tests__/duckdb-session.test.ts"
+  ],
+  "assertions": [
+    "The SQL validation logic in data-cache.ts is updated to allow UNION within a query (not just at the start)",
+    "The validation still rejects mutating keywords (INSERT, DELETE, UPDATE, DROP, CREATE) using word-boundary checks",
+    "The query must still start with SELECT or WITH — UNION is allowed as an operator within the query, not as a starting keyword",
+    "The 50-row result cap is still applied to the final UNION result set",
+    "Column names containing 'union' (e.g., 'credit_union_name') do not trigger false-positive rejection due to word-boundary matching"
+  ]
+}

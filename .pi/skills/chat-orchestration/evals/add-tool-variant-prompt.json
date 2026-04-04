@@ -1,0 +1,16 @@
+{
+  "name": "add-tool-variant-prompt",
+  "task": "I need a new tool for fetching options chain data. The tool should be called get_options_chain, accept a ticker and optional expiration date, and use the pricing domain client. Wire it up end to end.",
+  "context_files": [
+    "electron/domains/chat/tool-defs.ts",
+    "electron/domains/chat/tool-registry.ts",
+    "electron/domains/chat/data-cache.ts"
+  ],
+  "assertions": [
+    "A tool definition named 'get_options_chain' is added in tool-defs.ts with both 'ticker' (required) and 'expiration_date' (optional) parameters",
+    "The tool is mapped to the 'pricing' domain in TOOL_DOMAIN_MAP",
+    "An else-if dispatch branch for 'get_options_chain' is added in executeTool() in tool-registry.ts",
+    "The tool description says WHEN to use the tool (e.g., 'Use for options pricing, open interest, or implied volatility questions') not just what it returns",
+    "The result is serialized with JSON.stringify(data, bigintReplacer) in the tool-registry.ts dispatch"
+  ]
+}

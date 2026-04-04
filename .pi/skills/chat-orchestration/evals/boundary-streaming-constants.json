@@ -1,0 +1,14 @@
+{
+  "name": "boundary-streaming-constants",
+  "task": "Increase the maximum tool rounds from 5 to 8 and increase the context budget from 100K to 150K characters. We're switching to a model with a larger context window.",
+  "context_files": [
+    "electron/domains/chat/service.ts"
+  ],
+  "assertions": [
+    "MAX_TOOL_ROUNDS is changed from 5 to 8 in service.ts",
+    "MAX_CONTEXT_CHARS is changed from 100_000 to 150_000 in service.ts",
+    "CONTEXT_HEADROOM_CHARS remains at 20_000 (not modified unless explicitly requested)",
+    "INTER_ROUND_DELAY_MS remains at 2_000 (not modified unless explicitly requested)",
+    "The changes are made to the constant declarations at the top of service.ts, not inline magic numbers"
+  ]
+}

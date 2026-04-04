@@ -1,0 +1,12 @@
+{
+  "name": "boundary-reference-compliance",
+  "task": "Review this schema and queries for performance issues:\n\n```sql\nCREATE TABLE users (id SERIAL PRIMARY KEY, email VARCHAR(255), name VARCHAR(100));\nCREATE TABLE orders (id SERIAL PRIMARY KEY, userId BIGINT REFERENCES users(id), total DECIMAL, status VARCHAR(20), created_at TIMESTAMP);\n\n-- Query 1: Get active orders for a user\nSELECT * FROM orders WHERE userId = $1 AND status = 'active';\n\n-- Query 2: Get all users with their orders (application loops per user)\nFOR each user: SELECT * FROM orders WHERE userId = user.id;\n```",
+  "context_files": [],
+  "assertions": [
+    "Response flags `userId` as a camelCase identifier and recommends lowercase `user_id` instead",
+    "Response flags the missing index on the foreign key column (`userId`/`user_id`) in the orders table",
+    "Response identifies the N+1 query pattern in Query 2 and recommends replacing the loop with a single JOIN or `WHERE user_id = ANY($1::bigint[])` batch query",
+    "Response recommends replacing `SERIAL` with `bigint generated always as identity` for primary keys",
+    "Response suggests a partial index on `(user_id) WHERE status = 'active'` or a composite index on `(user_id, status)` to optimize Query 1"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "edge-case",
+  "task": "Review this single utility function for issues:\n\n```typescript\n// electron/core/utils.ts\nexport function parseApiResponse(raw: any): any {\n  const data = JSON.parse(raw);\n  return data.results || data.data || data;\n}\n```",
+  "context_files": [
+    ".claude/skills/code-review/SKILL.md"
+  ],
+  "assertions": [
+    "Response flags the use of `any` as the parameter type and recommends a specific type (e.g., string, unknown)",
+    "Response flags the use of `any` as the return type and recommends a specific or generic return type",
+    "Response flags the missing try/catch around JSON.parse which will throw on invalid input",
+    "Response flags that the function has no input validation (raw could be null, undefined, or non-string)",
+    "Response includes at least one severity label (Critical, Warning, Suggestion, or equivalent) for the findings"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "happy-path-variant-a",
+  "task": "Build a function in the polymarket domain client that fetches the orderbook and current price for a specific prediction market token. I want to show users the bid/ask spread and depth when they ask about a specific Polymarket event.",
+  "context_files": [
+    ".claude/skills/polymarket-api/SKILL.md",
+    "electron/domains/polymarket/client.ts",
+    "electron/domains/polymarket/service.ts"
+  ],
+  "assertions": [
+    "Response uses the CLOB API base URL `https://clob.polymarket.com` for orderbook and price data",
+    "Response calls `GET /book?token_id=X` for the orderbook and `GET /price?token_id=X` or `GET /midpoint?token_id=X` for pricing",
+    "Response handles the token_id as a required parameter (not the event slug) since the CLOB API uses token IDs",
+    "Response includes spread calculation logic (difference between best bid and best ask from the orderbook)",
+    "Response does not require authentication (Level 2) since orderbook and price are Level 0 public endpoints"
+  ]
+}

@@ -11,7 +11,7 @@ def test_polygon_transform_shape(sample_polygon_results: list[dict]) -> None:
     assert len(df) == 3
     assert set(df.columns) == {
         "ticker", "timestamp", "open", "high", "low", "close",
-        "volume", "vwap", "transactions", "source",
+        "volume", "vwap", "transactions", "source", "ingested_at",
     }
     assert df["ticker"][0] == "AAPL"
     assert df["source"][0] == "polygon_backfill"

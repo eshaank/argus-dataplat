@@ -1,0 +1,14 @@
+{
+  "name": "happy-path-variant-b",
+  "task": "Build a DataTable component for displaying a list of stock holdings with columns: ticker, company name, current price, daily change %, and market cap. Include sortable column headers.",
+  "context_files": [
+    ".claude/skills/ui-design-system/SKILL.md"
+  ],
+  "assertions": [
+    "Response styles table headers with 11px font-size, uppercase text-transform, and `var(--text-muted)` color",
+    "Response uses `JetBrains Mono` font-family for numeric columns (price, change %, market cap)",
+    "Response right-aligns numeric data columns (price, change %, market cap)",
+    "Response uses `var(--border-subtle)` for row separator borders and `var(--border)` for the header border-bottom",
+    "Response styles the first column (ticker or company name) with `var(--text-primary)` and font-weight 500"
+  ]
+}

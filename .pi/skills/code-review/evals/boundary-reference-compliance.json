@@ -1,0 +1,17 @@
+{
+  "name": "boundary-reference-compliance",
+  "task": "Do a full code review of electron/domains/settings/router.ts — check everything: security, types, error handling, architecture, and testing.",
+  "context_files": [
+    ".claude/skills/code-review/SKILL.md",
+    ".rules/architecture.md",
+    ".rules/base.md",
+    ".rules/base-overrides.md"
+  ],
+  "assertions": [
+    "Response follows the SKILL.md review order: Security is checked FIRST before other categories",
+    "Response checks whether the settings router stores or exposes API keys and flags any secrets in plain text",
+    "Response checks whether database/store access goes through a centralized wrapper (not direct file system or store calls scattered in the router)",
+    "Response checks whether corresponding tests exist for the settings router and notes their absence if missing",
+    "Response uses the structured output format from SKILL.md: each issue has Severity, Location, Issue, and Fix fields (or equivalent structured format)"
+  ]
+}

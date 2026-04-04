@@ -1,0 +1,15 @@
+{
+  "name": "frontend-component-test",
+  "task": "Write tests for the ArtifactFrame component's resize behavior. Test that the iframe height is clamped between the min and max values, and that the resize message handler updates the height correctly.",
+  "context_files": [
+    "frontend/src/components/chat/__tests__/ArtifactFrame.test.tsx",
+    "frontend/vitest.config.ts"
+  ],
+  "assertions": [
+    "Test file is located in frontend/src/components/chat/__tests__/ directory",
+    "Tests use render() from @testing-library/react and screen queries (getByText, getByRole, etc.)",
+    "The postMessage-based resize behavior is tested using fireEvent or window.dispatchEvent with a MessageEvent",
+    "At least one test verifies the iframe height is clamped (does not exceed the maximum allowed value)",
+    "vi.useFakeTimers() is used if the component has debounced or delayed resize handling"
+  ]
+}

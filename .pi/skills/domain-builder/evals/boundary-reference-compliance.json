@@ -1,0 +1,16 @@
+{
+  "name": "boundary-reference-compliance",
+  "task": "Create a new domain for insider trading transactions. It should show recent insider buys and sells for a given ticker.",
+  "context_files": [
+    ".claude/skills/domain-builder/SKILL.md",
+    ".rules/architecture.md",
+    ".rules/base-overrides.md"
+  ],
+  "assertions": [
+    "Response reads or references project-docs/ARCHITECTURE.md or the existing domain structure before creating files",
+    "All created files use TypeScript (.ts extension), not JavaScript (.js)",
+    "The tool description says WHEN to use the tool (contains phrasing like 'Use when', 'Use for', or 'Use this when'), not just what it returns",
+    "The router includes Zod input validation (z.string(), z.object(), or similar) on the ticker parameter — not unvalidated raw input",
+    "Response produces exactly the files specified in the checklist: at minimum router.ts and client.ts inside the new domain folder"
+  ]
+}

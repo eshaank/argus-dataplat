@@ -1,0 +1,14 @@
+{
+  "name": "edge-case",
+  "task": "Create a toggle button group component for switching between chart timeframes (1D, 1W, 1M, 6M, 1Y, 5Y). It should be a compact horizontal row of buttons where one is active at a time.",
+  "context_files": [
+    ".claude/skills/ui-design-system/SKILL.md"
+  ],
+  "assertions": [
+    "Response uses `var(--bg-tertiary)` for the toggle group container background",
+    "Response applies border-radius of 4px to individual toggle buttons and 6px to the outer container",
+    "Response uses `var(--bg-hover)` or `var(--accent)` for the active/selected button state, not a custom color",
+    "Response does not use box-shadow for any elevation or depth effect on the toggle group",
+    "Response includes a hover state transition with duration between 0.12s and 0.15s using `ease` or `ease-out` timing"
+  ]
+}

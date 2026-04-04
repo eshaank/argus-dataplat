@@ -1,0 +1,16 @@
+{
+  "name": "add-session-table-happy-path",
+  "task": "Add a new session table for options chain data called session_options_chain. It should store ticker, expiration_date, strike_price, option_type (call/put), bid, ask, volume, open_interest, and implied_volatility. Wire it to the get_options_chain tool.",
+  "context_files": [
+    "electron/domains/chat/data-cache.ts",
+    "electron/domains/chat/tool-defs.ts",
+    "electron/domains/chat/tool-registry.ts"
+  ],
+  "assertions": [
+    "A CREATE TABLE IF NOT EXISTS session_options_chain statement is added to the schema creation in data-cache.ts",
+    "The table includes _tool_call_id VARCHAR and _fetched_at TIMESTAMP DEFAULT current_timestamp columns",
+    "A cacheOptionsChain() function is added in data-cache.ts that uses safeNum/safeStr for type-safe column insertion",
+    "An entry mapping 'get_options_chain' to the cache function is added in TOOL_CACHE_MAP",
+    "A case for 'get_options_chain' is added in the switch inside cacheToolResult()"
+  ]
+}

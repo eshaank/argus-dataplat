@@ -38,3 +38,11 @@ src/dataplat/ingestion/polygon/universes/all.txt
 creds.txt
 sdk/dist/
 sdk/node_modules/
+
+# JARs (ThetaTerminal, etc.)
+*.jar
+lib/*.jar
+
+# Codemogger index caches
+.codemogger/
+src/.codemogger/

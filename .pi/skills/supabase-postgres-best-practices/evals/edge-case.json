@@ -1,0 +1,12 @@
+{
+  "name": "edge-case",
+  "task": "Our application is hitting connection limits on Supabase Postgres. We have 200 serverless function instances each opening their own connection. The database shows 200+ active connections and is becoming unresponsive. How do we fix this?",
+  "context_files": [],
+  "assertions": [
+    "Response recommends using connection pooling via PgBouncer or the Supabase connection pooler",
+    "Response explains the difference between transaction mode and session mode pooling",
+    "Response recommends connecting through the pooler endpoint (port 6543) instead of the direct connection (port 5432) or equivalent Supabase pooler URL",
+    "Response mentions that each Postgres connection consumes 1-3MB of RAM or otherwise explains why raw connection count is a resource problem",
+    "Response suggests configuring pool size based on available resources (e.g., `(CPU cores * 2) + spindle_count` formula or a concrete small number like 10-20 connections in the pool)"
+  ]
+}

@@ -14,6 +14,7 @@ import polars as pl
 
 from dataplat.config import settings
 from dataplat.db.client import get_client
+from dataplat.db.migrate import ensure_schema
 
 logger = logging.getLogger(__name__)
 logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -170,6 +171,7 @@ def run_fundamentals_backfill(tickers: list[str]) -> None:
     if not settings.polygon_api_key:
         raise RuntimeError("POLYGON_API_KEY must be set in .env")
 
+    ensure_schema()
     ch = get_client()
     start_time = time.monotonic()
     total_financials = 0

@@ -1,0 +1,18 @@
+{
+  "name": "boundary-source-compliance",
+  "task": "Build the Schwab daily options pipeline that takes over from ThetaData after the backfill completes. It should fetch the full option chain for an underlying via Schwab's /marketdata/v1/chains endpoint, flatten all contracts into rows, and insert into the same option_chains table that ThetaData populated. Make sure the schema is compatible across both sources.",
+  "context_files": [
+    ".pi/skills/thetadata/SKILL.md",
+    ".pi/skills/dataplat/SKILL.md",
+    "argus-dataplat/src/dataplat/ingestion/schwab/client.py",
+    "argus-dataplat/src/dataplat/ingestion/schwab/historical.py",
+    "argus-dataplat/OPTIONS_BACKFILL_PLAN.md"
+  ],
+  "assertions": [
+    "Response sets `source = 'schwab'` on all rows, distinct from ThetaData's `source = 'thetadata'`",
+    "Response sets 2nd-order greek columns (vanna, charm, vomma, veta, epsilon, lambda) to null since Schwab does not provide them",
+    "Response uses schwabdev client from `ingestion/schwab/client.py` (the existing singleton wrapper), not hand-rolled OAuth or a new HTTP client",
+    "Response writes to the same `option_chains` table using the same column order and types, so ThetaData and Schwab rows are seamlessly queryable together",
+    "Response respects Schwab's 120 req/min rate limit with a delay between requests, following the existing 500ms pattern from `ingestion/schwab/historical.py`"
+  ]
+}

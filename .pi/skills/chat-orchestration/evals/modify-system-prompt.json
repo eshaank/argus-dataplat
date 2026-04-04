@@ -1,0 +1,14 @@
+{
+  "name": "modify-system-prompt",
+  "task": "Update the system prompt to include information about crypto market hours. Crypto markets are 24/7 so the market-closed note on weekends should exclude crypto tickers. Add this to the buildDateContext function in prompts.ts.",
+  "context_files": [
+    "electron/domains/chat/prompts.ts"
+  ],
+  "assertions": [
+    "The buildDateContext() function in prompts.ts is modified to mention that crypto markets trade 24/7",
+    "The weekend/holiday market-closed note is qualified to apply only to equities, not crypto",
+    "The changes are made in prompts.ts, not in service.ts or tool-defs.ts",
+    "The buildSystemPrompt function signature and its section-assembly logic remain unchanged",
+    "No existing prompt sections (BASE_PROMPT, GUIDELINES, VISUALIZATION_RULES) are removed or overwritten"
+  ]
+}

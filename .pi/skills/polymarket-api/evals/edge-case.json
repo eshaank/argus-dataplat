@@ -1,0 +1,16 @@
+{
+  "name": "edge-case",
+  "task": "Add error handling and rate limiting to the polymarket client. The CLOB API has rate limits of ~100 requests/minute for public endpoints. Implement exponential backoff and a request queue so we don't get throttled when users make rapid queries about multiple markets.",
+  "context_files": [
+    ".claude/skills/polymarket-api/SKILL.md",
+    "electron/domains/polymarket/client.ts",
+    "electron/core"
+  ],
+  "assertions": [
+    "Response implements exponential backoff with increasing delay between retries, not a fixed retry interval",
+    "Response enforces a rate limit of approximately 100 requests per minute for public (unauthenticated) endpoints",
+    "Response implements a request queue or throttling mechanism that serializes or batches concurrent requests",
+    "Response distinguishes between public endpoint rate limits (~100/min) and authenticated endpoint rate limits (~1000/min)",
+    "Response logs errors with context before re-throwing, not silently swallowing API failures"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "happy-path-variant-a",
+  "task": "Audit the file at frontend/src/components/chat/ChatInput.tsx for security and performance issues.",
+  "context_files": [
+    ".claude/skills/code-review/SKILL.md",
+    ".rules/architecture.md",
+    "frontend/src/components/chat/ChatInput.tsx"
+  ],
+  "assertions": [
+    "Response checks for XSS vulnerabilities (e.g., dangerouslySetInnerHTML, unsanitized user input rendered in DOM)",
+    "Response checks for unnecessary re-renders or missing React optimization (useMemo, useCallback, React.memo)",
+    "Response checks for proper cleanup of event listeners or subscriptions (e.g., in useEffect return functions)",
+    "Response explicitly states whether any `any` types are used and flags them if found",
+    "Response organizes findings by category (Security, Performance, TypeScript Quality, or similar groupings) rather than a flat unstructured list"
+  ]
+}

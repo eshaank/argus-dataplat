@@ -1,0 +1,15 @@
+{
+  "name": "boundary-fire-and-forget-compliance",
+  "task": "Add a new session table for ETF holdings data (session_etf_holdings) with columns for etf_ticker, holding_ticker, weight, shares, and market_value. Cache results from the get_etf_holdings tool.",
+  "context_files": [
+    "electron/domains/chat/data-cache.ts",
+    "electron/domains/chat/service.ts"
+  ],
+  "assertions": [
+    "The cacheToolResult call for get_etf_holdings uses void and .catch() pattern (fire-and-forget), never awaited in the streaming loop",
+    "Errors in the cache function are logged (console.error or similar) but never thrown or propagated to the caller",
+    "The cache function wraps DuckDB operations in a try-catch block that prevents errors from bubbling up",
+    "The session table includes _tool_call_id VARCHAR and _fetched_at TIMESTAMP DEFAULT current_timestamp columns",
+    "The parseResult() helper is used to normalize the input data before row iteration (handles JSON string, envelope, array, single object)"
+  ]
+}

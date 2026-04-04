@@ -1,0 +1,14 @@
+{
+  "name": "happy-path-primary",
+  "task": "Add a new IPC channel for exporting chart data as CSV. The renderer should be able to invoke a 'argus:export:csv' channel with the data, and the main process should write it to a user-selected file path using a save dialog.",
+  "context_files": [
+    ".claude/skills/electron-development/SKILL.md"
+  ],
+  "assertions": [
+    "Response uses `ipcMain.handle()` (invoke/handle pattern) for the new channel, not `ipcMain.on()` (send/on pattern)",
+    "Response adds the new channel string 'argus:export:csv' to the preload script's allowlist array",
+    "Response validates the IPC payload in the main process handler before processing (e.g., checking data shape or using Zod)",
+    "Response uses Electron's `dialog.showSaveDialog()` for file path selection rather than accepting a raw file path from the renderer",
+    "Response returns a result (success/failure) from the handler back to the renderer, not fire-and-forget"
+  ]
+}

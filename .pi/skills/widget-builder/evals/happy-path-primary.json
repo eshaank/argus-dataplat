@@ -1,0 +1,15 @@
+{
+  "name": "happy-path-primary",
+  "task": "Create a candlestick chart widget for displaying OHLC price data. It should support hover tooltips showing open, high, low, close values and a timeframe toggle for 1D, 1W, 1M, 3M, 1Y.",
+  "context_files": [
+    ".claude/skills/widget-builder/SKILL.md",
+    "project-docs/argus-style-guide.md"
+  ],
+  "assertions": [
+    "The component accepts a prop typed as WidgetPayload (or destructures the equivalent fields: title, data, config, interactions)",
+    "All color values use CSS custom properties (var(--chart-1), var(--green), var(--red), etc.) — no hardcoded hex color strings in the component",
+    "The component renders a timeframe toggle using interactions.timeframe_toggle from the payload",
+    "Numeric/data values use the monospace font via var(--font-mono) or a class that maps to JetBrains Mono",
+    "The widget card uses border-radius 12px (or the CSS variable equivalent) as specified in the design system"
+  ]
+}
