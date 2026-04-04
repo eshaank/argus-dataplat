@@ -1,7 +1,7 @@
 {
   "skills": {
     "dataplat": {
-      "description": "Argus DataPlat — Python data platform (ClickHouse + Schwab ingestion + Polars). Central analytical store.",
+      "description": "Argus DataPlat — Python data platform (ClickHouse + Schwab/Polygon/EDGAR/FRED ingestion + Polars). Central analytical store.",
       "triggers": [
         "dataplat",
         "argus-dataplat",
@@ -12,7 +12,10 @@
         "ingestion pipeline",
         "data platform",
         "MCP server",
-        "Polars"
+        "Polars",
+        "backfill",
+        "migration",
+        "schema"
       ],
       "stack": [
         "python",
@@ -20,6 +23,41 @@
         "polars"
       ],
       "depends_on": [],
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    "sec-edgar": {
+      "description": "SEC EDGAR pipeline — financials, dilution tracking (warrants, convertibles, options pool), insider trades (Form 4), institutional holders (SC 13G/13D), material events (8-K), filing metadata.",
+      "triggers": [
+        "SEC",
+        "EDGAR",
+        "sec_edgar",
+        "financials",
+        "insider trades",
+        "Form 4",
+        "13G",
+        "13D",
+        "institutional holders",
+        "dilution",
+        "warrants",
+        "convertible",
+        "stock based compensation",
+        "SBC",
+        "8-K",
+        "material events",
+        "GAAP",
+        "XBRL",
+        "companyfacts",
+        "CIK"
+      ],
+      "stack": [
+        "python",
+        "clickhouse"
+      ],
+      "depends_on": [
+        "dataplat"
+      ],
       "files": [
         "SKILL.md"
       ]

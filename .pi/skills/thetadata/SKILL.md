@@ -252,7 +252,7 @@ argus-dataplat/
 │   └── client.py           # HTTP client wrapper for v3 REST API
 ├── justfile                # `just thetadata up/down`
 ├── .env                    # THETADATA_USERNAME, THETADATA_PASSWORD
-└── OPTIONS_BACKFILL_PLAN.md
+└── docs/OPTIONS_BACKFILL_PLAN.md
 ```
 
 ## OpenAPI Spec
