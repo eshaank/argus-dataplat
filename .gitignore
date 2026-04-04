@@ -46,3 +46,6 @@ lib/*.jar
 # Codemogger index caches
 .codemogger/
 src/.codemogger/
+
+# SEC EDGAR CIK map cache
+.edgar_cik_map.json
