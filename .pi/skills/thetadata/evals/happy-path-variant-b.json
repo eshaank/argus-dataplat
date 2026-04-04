@@ -1,0 +1,18 @@
+{
+  "name": "happy-path-variant-b",
+  "task": "Build the CLI entry point for the options backfill. It should support flags for --tickers, --universe, --monthly-only, --max-otm-pct, --resume, and --dry-run. The --resume flag should query ClickHouse for already-ingested contracts and skip them. Add a corresponding justfile recipe.",
+  "context_files": [
+    ".pi/skills/thetadata/SKILL.md",
+    ".pi/skills/dataplat/SKILL.md",
+    "argus-dataplat/src/dataplat/cli/backfill.py",
+    "argus-dataplat/justfile",
+    "argus-dataplat/OPTIONS_BACKFILL_PLAN.md"
+  ],
+  "assertions": [
+    "Response places the CLI module in `argus-dataplat/src/dataplat/cli/backfill_options.py` following the existing `backfill.py` and `backfill_fundamentals.py` naming pattern",
+    "Response calls `ensure_schema()` before any ClickHouse inserts, following the dataplat hard rule",
+    "Response implements --resume by querying `SELECT DISTINCT underlying, expiration, strike, put_call FROM option_chains WHERE source = 'thetadata'` and skipping those tuples",
+    "Response implements --dry-run by walking the discovery phase (expirations + strikes) without fetching data, printing request count and time estimate",
+    "Response adds a `backfill-options` recipe to the justfile using the pattern `uv run python -m dataplat.cli.backfill_options {{ARGS}}`"
+  ]
+}

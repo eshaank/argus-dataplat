@@ -1,0 +1,15 @@
+{
+  "name": "add-new-agent-role-happy-path",
+  "task": "Add a new 'report-writer' sub-agent role that generates formatted markdown reports. It should use GLM-5, have a 15-turn limit, $0.25 cost budget, and 5-minute wall clock. It needs bash, read, write, edit, and ls tools but no data tools.",
+  "context_files": [
+    "electron/agents/agent-roles.ts",
+    "electron/agents/sub-agents/data-analyst.ts"
+  ],
+  "assertions": [
+    "A 'report-writer' entry is added to BUDGETS in agent-roles.ts with turns: 15, costUsd: 0.25, and wallClockMs: 300000",
+    "A 'report-writer' entry is added to MODEL_IDS in agent-roles.ts using GLM-5 (zai-org/GLM-5)",
+    "A 'report-writer' entry is added to SYSTEM_PROMPTS in agent-roles.ts with a system prompt describing the report-writing task",
+    "The getToolNamesForRole() function in agent-roles.ts returns bash, read, write, edit, and ls tools for the 'report-writer' role (no data tools)",
+    "A new file is created at electron/agents/sub-agents/report-writer.ts following the factory + runner pattern from data-analyst.ts"
+  ]
+}

@@ -1,0 +1,244 @@
+{
+  "skills": {
+    "dataplat": {
+      "description": "Argus DataPlat — Python data platform (ClickHouse + Schwab ingestion + Polars). Central analytical store.",
+      "triggers": [
+        "dataplat",
+        "argus-dataplat",
+        "ClickHouse",
+        "Schwab API",
+        "schwabdev",
+        "OHLCV backfill",
+        "ingestion pipeline",
+        "data platform",
+        "MCP server",
+        "Polars"
+      ],
+      "stack": [
+        "python",
+        "clickhouse",
+        "polars"
+      ],
+      "depends_on": [],
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    "thetadata": {
+      "description": "ThetaData historical options API — EOD greeks, IV surfaces, open interest. One-time 8yr backfill source for option_chains table.",
+      "triggers": [
+        "thetadata",
+        "ThetaData",
+        "ThetaTerminal",
+        "options backfill",
+        "historical greeks",
+        "IV surface",
+        "implied volatility history",
+        "option_chains",
+        "EOD_QUOTE_GREEKS"
+      ],
+      "stack": [
+        "python",
+        "clickhouse"
+      ],
+      "depends_on": [
+        "dataplat"
+      ],
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    "code-review": {
+      "description": "Systematic code review \u2014 security, performance, types, testing",
+      "triggers": [
+        "review",
+        "audit",
+        "check code",
+        "security review"
+      ],
+      "stack": [],
+      "depends_on": [],
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    "chat-orchestration": {
+      "description": "LLM integration patterns \u2014 tool registry, SSE streaming, widget contracts",
+      "triggers": [
+        "chat domain",
+        "LLM",
+        "tool registry",
+        "SSE",
+        "streaming"
+      ],
+      "stack": [
+        "fastapi",
+        "react"
+      ],
+      "depends_on": [],
+      "files": [
+        "SKILL.md"
+      ],
+      "source_preset": "3epsilon-harness"
+    },
+    "domain-builder": {
+      "description": "DDD domain creation \u2014 client, router, schema patterns for Argus",
+      "triggers": [
+        "new domain",
+        "create domain",
+        "backend domain"
+      ],
+      "stack": [
+        "fastapi"
+      ],
+      "depends_on": [
+        "fastapi-templates"
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "source_preset": "3epsilon-harness"
+    },
+    "fastapi-templates": {
+      "description": "Production FastAPI patterns \u2014 project structure, async, DI, CRUD",
+      "triggers": [
+        "FastAPI",
+        "backend",
+        "API endpoint",
+        "router"
+      ],
+      "stack": [
+        "fastapi",
+        "python"
+      ],
+      "depends_on": [],
+      "files": [
+        "SKILL.md"
+      ],
+      "source_preset": "3epsilon-harness"
+    },
+    "massive-api": {
+      "description": "Polygon.io + Massive API — reference metadata, news, corporate actions ONLY. NOT for price/ticker data (use dataplat/Schwab).",
+      "triggers": [
+        "Massive",
+        "Polygon",
+        "reference data",
+        "ticker universe"
+      ],
+      "stack": [
+        "python"
+      ],
+      "depends_on": [],
+      "files": [
+        "SKILL.md",
+        "references/"
+      ],
+      "source_preset": "3epsilon-harness"
+    },
+    "supabase-postgres-best-practices": {
+      "description": "PostgreSQL optimization \u2014 indexing, locking, connections, RLS, partitioning",
+      "triggers": [
+        "supabase",
+        "postgres",
+        "database",
+        "SQL",
+        "index",
+        "query"
+      ],
+      "stack": [
+        "supabase",
+        "postgres"
+      ],
+      "depends_on": [],
+      "files": [
+        "SKILL.md",
+        "references/"
+      ],
+      "source_preset": "3epsilon-harness"
+    },
+    "vercel-react-best-practices": {
+      "description": "React/Next.js optimization \u2014 rendering, async, bundles, SSR",
+      "triggers": [
+        "React",
+        "Next.js",
+        "Vercel",
+        "performance",
+        "rendering"
+      ],
+      "stack": [
+        "react",
+        "nextjs"
+      ],
+      "depends_on": [],
+      "files": [
+        "SKILL.md",
+        "rules/"
+      ],
+      "source_preset": "3epsilon-harness"
+    },
+    "ui-design-system": {
+      "description": "Argus visual design system \u2014 tokens, components, typography",
+      "triggers": [
+        "design system",
+        "UI",
+        "styles",
+        "theme"
+      ],
+      "stack": [
+        "react"
+      ],
+      "depends_on": [],
+      "files": [
+        "SKILL.md"
+      ],
+      "source_preset": "3epsilon-harness"
+    },
+    "widget-builder": {
+      "description": "Widget creation patterns for the Argus canvas system",
+      "triggers": [
+        "widget",
+        "canvas",
+        "chart component"
+      ],
+      "stack": [
+        "react"
+      ],
+      "depends_on": [
+        "ui-design-system"
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "source_preset": "3epsilon-harness"
+    },
+    "polymarket-api": {
+      "description": "Polymarket CLOB API integration",
+      "triggers": [
+        "polymarket",
+        "prediction market"
+      ],
+      "stack": [
+        "python"
+      ],
+      "depends_on": [],
+      "files": [
+        "SKILL.md"
+      ],
+      "source_preset": "3epsilon-harness"
+    },
+    "refactor-migrator": {
+      "description": "Code migration and refactoring patterns",
+      "triggers": [
+        "refactor",
+        "migrate",
+        "restructure"
+      ],
+      "stack": [],
+      "depends_on": [],
+      "files": [
+        "SKILL.md"
+      ],
+      "source_preset": "3epsilon-harness"
+    }
+  }
+}

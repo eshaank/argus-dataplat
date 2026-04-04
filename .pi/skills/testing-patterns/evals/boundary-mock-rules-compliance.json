@@ -1,0 +1,16 @@
+{
+  "name": "boundary-mock-rules-compliance",
+  "task": "Write tests for the SQL validation logic in the query_data tool. Test that SELECT and WITH statements are allowed, that INSERT/DELETE/UPDATE/DROP/CREATE are rejected, and that column names like 'updated_at' do not trigger false positives.",
+  "context_files": [
+    "electron/__tests__/duckdb-session.test.ts",
+    "electron/__tests__/agent-duckdb.test.ts",
+    "electron/domains/chat/data-cache.ts"
+  ],
+  "assertions": [
+    "DuckDB is NOT mocked — tests use a real in-memory DuckDB instance for SQL validation",
+    "At least one test verifies that a query starting with SELECT passes validation",
+    "At least one test verifies that a query starting with WITH (CTE) passes validation",
+    "At least one test verifies that queries containing INSERT, DELETE, UPDATE, DROP, or CREATE are rejected",
+    "At least one test verifies that the word-boundary check allows column names containing reserved words (e.g., 'updated_at' containing 'update')"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "happy-path-primary",
+  "task": "Create a new backend domain for ETF holdings data. The domain should let users look up the top holdings of any ETF by ticker symbol. Use the Massive API as the data source.",
+  "context_files": [
+    ".claude/skills/domain-builder/SKILL.md",
+    ".rules/architecture.md",
+    ".rules/base-overrides.md"
+  ],
+  "assertions": [
+    "Response creates a file at electron/domains/etf_holdings/router.ts containing a tRPC router definition",
+    "Response creates a file at electron/domains/etf_holdings/client.ts that includes a TTL cache (TTLCache or Map with expiry logic)",
+    "Response includes a tool registry entry with a description that specifies WHEN to use the tool (e.g., 'Use when the user asks about ETF composition' or similar phrasing)",
+    "Response adds the new router import to electron/trpc/root.ts or explicitly shows the diff to add it",
+    "Domain folder name is 'etf_holdings' (snake_case, specific analytical concept) — not a vague name like 'data' or 'research'"
+  ]
+}

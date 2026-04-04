@@ -1,0 +1,16 @@
+{
+  "name": "happy-path-variant-a",
+  "task": "I need to add a stock snapshot endpoint to the pricing domain. It should call the Massive API to get the latest snapshot for a ticker including current price, today's change, and volume. Wire it up as a tRPC procedure in the pricing router.",
+  "context_files": [
+    ".claude/skills/massive-api/SKILL.md",
+    ".claude/skills/massive-api/references/stocks_commands.md",
+    "electron/domains/pricing/router.ts"
+  ],
+  "assertions": [
+    "Response uses `npx -y massive-cli stocks snapshot --ticker <ticker>` as the CLI command or equivalent client call pattern",
+    "Response creates or modifies a tRPC procedure in the pricing domain router with a Zod input schema requiring a `ticker` field",
+    "Response parses the JSON output from the Massive CLI command (since all commands output JSON to stdout)",
+    "Response includes TypeScript types for the snapshot response data including at minimum price, change, and volume fields",
+    "Response places the client function in `electron/domains/pricing/client.ts`, not in a random location"
+  ]
+}

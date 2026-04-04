@@ -1,0 +1,12 @@
+{
+  "name": "happy-path-variant-a",
+  "task": "I have a slow query that fetches orders for a specific customer and joins with the products table. Here's the query: `SELECT o.id, o.total, p.name FROM orders o JOIN products p ON p.id = o.product_id WHERE o.customer_id = $1 ORDER BY o.created_at DESC LIMIT 20;` -- It takes 3 seconds on a table with 5 million rows. How do I optimize it?",
+  "context_files": [],
+  "assertions": [
+    "Response recommends creating an index on `orders.customer_id` since it is used in the WHERE clause",
+    "Response recommends creating an index on `orders.product_id` since it is the foreign key used in the JOIN",
+    "Response mentions using EXPLAIN or EXPLAIN ANALYZE to verify the query plan shows Index Scan instead of Seq Scan",
+    "Response considers a composite index on `(customer_id, created_at DESC)` or a covering index to optimize both the filter and the ORDER BY",
+    "Response does not suggest removing the LIMIT clause or adding application-level caching as the primary solution"
+  ]
+}

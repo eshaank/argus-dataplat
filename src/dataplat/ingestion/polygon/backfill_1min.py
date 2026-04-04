@@ -19,6 +19,7 @@ import polars as pl
 
 from dataplat.config import settings
 from dataplat.db.client import get_client
+from dataplat.db.migrate import ensure_schema
 from dataplat.transforms.ohlcv import transform_polygon_aggs
 from dataplat.transforms.validation import validate_ohlcv
 
@@ -29,6 +30,11 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("httpcore").setLevel(logging.WARNING)
 
 POLYGON_BASE = "https://api.polygon.io/v2/aggs/ticker"
+
+# Retry config for transient failures (disconnects, 429s, 5xx)
+_MAX_RETRIES = 4
+_RETRY_BASE_DELAY = 1.0  # seconds, doubles each attempt
+_RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 
 
 def _month_ranges(months: int) -> list[tuple[str, str]]:
@@ -50,23 +56,50 @@ async def _fetch_month(
     to_date: str,
     semaphore: asyncio.Semaphore,
 ) -> list[dict]:
-    """Fetch 1-min bars for one ticker-month."""
+    """Fetch 1-min bars for one ticker-month with retry on transient errors."""
     url = f"{POLYGON_BASE}/{ticker}/range/1/minute/{from_date}/{to_date}"
     params = {"adjusted": "true", "sort": "asc", "limit": "50000", "apiKey": settings.polygon_api_key}
 
-    async with semaphore:
-        resp = await client.get(url, params=params)
+    last_exc: Exception | None = None
+    for attempt in range(_MAX_RETRIES + 1):
+        try:
+            async with semaphore:
+                resp = await client.get(url, params=params)
 
-    if resp.status_code == 403:
-        logger.debug("%s %s→%s: NOT_AUTHORIZED (before plan lookback)", ticker, from_date, to_date)
-        return []
-    resp.raise_for_status()
-    data = resp.json()
+            if resp.status_code == 403:
+                logger.debug("%s %s→%s: NOT_AUTHORIZED (before plan lookback)", ticker, from_date, to_date)
+                return []
 
-    if data.get("status") == "NOT_AUTHORIZED":
-        return []
+            if resp.status_code in _RETRYABLE_STATUS:
+                delay = _RETRY_BASE_DELAY * (2 ** attempt)
+                logger.warning(
+                    "%s %s→%s: HTTP %d, retry %d/%d in %.1fs",
+                    ticker, from_date, to_date, resp.status_code, attempt + 1, _MAX_RETRIES, delay,
+                )
+                await asyncio.sleep(delay)
+                continue
 
-    return data.get("results", [])
+            resp.raise_for_status()
+            data = resp.json()
+
+            if data.get("status") == "NOT_AUTHORIZED":
+                return []
+
+            return data.get("results", [])
+
+        except (httpx.RemoteProtocolError, httpx.ReadError, httpx.ConnectError) as exc:
+            last_exc = exc
+            if attempt < _MAX_RETRIES:
+                delay = _RETRY_BASE_DELAY * (2 ** attempt)
+                logger.warning(
+                    "%s %s→%s: %s, retry %d/%d in %.1fs",
+                    ticker, from_date, to_date, type(exc).__name__, attempt + 1, _MAX_RETRIES, delay,
+                )
+                await asyncio.sleep(delay)
+            else:
+                raise
+
+    raise last_exc  # type: ignore[misc]  # should never reach here
 
 
 async def _backfill_ticker(
@@ -108,6 +141,8 @@ async def _run_async(tickers: list[str], months: int, concurrency: int) -> None:
     """Async entry point for the backfill."""
     if not settings.polygon_api_key:
         raise RuntimeError("POLYGON_API_KEY must be set in .env for the backfill")
+
+    ensure_schema()
 
     ranges = _month_ranges(months)
     semaphore = asyncio.Semaphore(concurrency)

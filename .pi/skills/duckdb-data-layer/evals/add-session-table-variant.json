@@ -1,0 +1,14 @@
+{
+  "name": "add-session-table-variant",
+  "task": "Add DuckDB caching for the get_analyst_ratings tool. Create a session_analyst_ratings table with columns for ticker, firm, rating, target_price, previous_target, date, and action (upgrade/downgrade/initiate).",
+  "context_files": [
+    "electron/domains/chat/data-cache.ts"
+  ],
+  "assertions": [
+    "A CREATE TABLE IF NOT EXISTS session_analyst_ratings statement is added with the specified columns plus _tool_call_id and _fetched_at",
+    "A cacheAnalystRatings() function is created that iterates over parsed rows and inserts them with parameterized queries",
+    "The function uses safeNum() for numeric fields (target_price, previous_target) and safeStr() for string fields (ticker, firm, rating, action)",
+    "TOOL_CACHE_MAP includes an entry for 'get_analyst_ratings' pointing to the new cache function and 'session_analyst_ratings' table name",
+    "The cacheToolResult() switch statement includes a case for 'get_analyst_ratings' calling the new function"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "happy-path-primary",
+  "task": "Build the ThetaData HTTP client wrapper for the options backfill pipeline. It should connect to ThetaTerminal on localhost:25510 and provide methods to fetch EOD quote greeks, EOD OHLCV, and open interest for a given option contract over a date range. Put it in the dataplat ingestion directory.",
+  "context_files": [
+    ".pi/skills/thetadata/SKILL.md",
+    ".pi/skills/dataplat/SKILL.md",
+    "argus-dataplat/src/dataplat/ingestion/schwab/client.py",
+    "argus-dataplat/OPTIONS_BACKFILL_PLAN.md"
+  ],
+  "assertions": [
+    "Response places the client in `argus-dataplat/src/dataplat/ingestion/thetadata/client.py`, not in a random location",
+    "Response uses `/hist/option/eod_quote_greeks` (without `/v2/` prefix) for the greeks endpoint, since `/v2/` returns empty responses for this request type",
+    "Response uses `/v2/hist/option/eod` and `/v2/hist/option/open_interest` (with `/v2/` prefix) for EOD and OI endpoints",
+    "Response encodes strikes as tenths-of-cent integers (e.g., $200.00 → 200000) and dates as YYYYMMDD integers (e.g., 20250401)",
+    "Response uses `httpx` or `requests` for HTTP calls and returns raw dicts or tuples, NOT pandas DataFrames (Polars-only codebase)"
+  ]
+}

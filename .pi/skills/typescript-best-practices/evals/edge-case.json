@@ -1,0 +1,14 @@
+{
+  "name": "edge-case",
+  "task": "Refactor this job status type to be more type-safe. Currently it uses a single interface with optional fields: `{ status: string; data?: any; error?: string; startedAt?: Date; completedAt?: Date }`. Make impossible states unrepresentable.",
+  "context_files": [
+    ".claude/skills/typescript-best-practices/SKILL.md"
+  ],
+  "assertions": [
+    "Response converts the single interface into a discriminated union type with a `status` string literal discriminant for each state",
+    "Response ensures the `data` field only exists on the completed/success variant, not on error or pending variants",
+    "Response ensures the `error` field only exists on the failed variant, not on success or pending variants",
+    "Response does not use `any` for the data field — it uses `unknown`, a generic type parameter, or a concrete type",
+    "Response uses `type` (not `interface`) for the union, since discriminated unions are type aliases by nature"
+  ]
+}

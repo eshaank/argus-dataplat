@@ -1,0 +1,12 @@
+{
+  "name": "happy-path-variant-b",
+  "task": "Set up Row Level Security on a multi-tenant SaaS application using Supabase. We have a `projects` table and a `tasks` table. Each user should only see projects they own and tasks belonging to those projects. Write the RLS policies.",
+  "context_files": [],
+  "assertions": [
+    "Response includes `ALTER TABLE projects ENABLE ROW LEVEL SECURITY` and `ALTER TABLE tasks ENABLE ROW LEVEL SECURITY`",
+    "Response creates RLS policies using `auth.uid()` to match the current user against an owner/user column",
+    "Response creates separate policies for SELECT, INSERT, UPDATE, and/or DELETE operations (or uses `FOR ALL` with a `USING` clause), not a single blanket grant",
+    "Response includes `FORCE ROW LEVEL SECURITY` or mentions that table owners bypass RLS without it",
+    "Response uses `USING` clause for read filtering and `WITH CHECK` clause for write validation in the policy definitions"
+  ]
+}

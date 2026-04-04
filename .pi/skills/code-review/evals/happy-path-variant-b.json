@@ -1,0 +1,16 @@
+{
+  "name": "happy-path-variant-b",
+  "task": "Review the error handling patterns across the chat domain. Focus on electron/domains/chat/ — are errors being swallowed? Are user-facing errors helpful?",
+  "context_files": [
+    ".claude/skills/code-review/SKILL.md",
+    ".rules/architecture.md",
+    ".rules/base.md"
+  ],
+  "assertions": [
+    "Response identifies any try/catch blocks that catch errors without logging or re-throwing (swallowed errors)",
+    "Response checks whether error messages exposed to users contain stack traces or internal details",
+    "Response verifies that async operations have error handling (try/catch or .catch())",
+    "Response provides a specific fix recommendation for each error handling issue found (not just 'fix this')",
+    "Response includes a 'Why' explanation for at least one finding, explaining the impact of the issue"
+  ]
+}

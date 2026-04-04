@@ -27,13 +27,19 @@ def get_client(*, database: str | None = None) -> Client:
     """
     global _client
     if _client is None or database is not None:
+        is_cloud = (
+            settings.clickhouse_secure
+            or settings.clickhouse_host.endswith(".clickhouse.cloud")
+            or settings.clickhouse_port == 8443
+        )
         client = clickhouse_connect.get_client(
             host=settings.clickhouse_host,
             port=settings.clickhouse_port,
             username=settings.clickhouse_user,
             password=settings.clickhouse_password,
             database=database or settings.clickhouse_database,
-            secure=settings.clickhouse_secure,
+            secure=is_cloud,
+            compress=is_cloud,  # LZ4 on the wire for cloud
         )
         if database is not None:
             return client  # one-off, don't cache

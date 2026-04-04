@@ -1,5 +1,5 @@
 -- Regime Dashboard — composite view of vol, yield curve, inflation, and jobs regimes
--- Run in: just ch-shell
+-- Run: just ch-query queries/regime_dashboard.sql
 
 WITH
 vol_regime AS (
@@ -27,27 +27,36 @@ jobs AS (
     FROM labor_market WHERE unemployment_rate IS NOT NULL
 )
 SELECT
-    toStartOfMonth(v.day) AS month,
-    round(avg(v.vol), 1) AS avg_vol,
-    multiIf(avg(v.vol) < 15, '🟢 LOW VOL',
-            avg(v.vol) < 25, '🟡 NORMAL',
-            avg(v.vol) < 40, '🟠 ELEVATED',
-            '🔴 CRISIS') AS vol_regime,
-    round(avg(c.spread_1s10s), 2) AS curve_spread,
-    if(avg(c.spread_1s10s) < 0, '🔴 INVERTED', '🟢 NORMAL') AS curve_regime,
-    round(max(i.cpi_yoy_change), 1) AS cpi_yoy,
-    multiIf(max(i.cpi_yoy_change) > 15, '🔴 HOT',
-            max(i.cpi_yoy_change) > 8, '🟠 WARM',
-            max(i.cpi_yoy_change) > 0, '🟢 STABLE',
-            '🔵 DEFLATION') AS inflation_regime,
-    round(max(j.unemployment_rate), 1) AS unemp,
-    multiIf(max(j.unemp_6m_delta) > 0.5, '🔴 DETERIORATING',
-            max(j.unemp_6m_delta) > 0, '🟡 SOFTENING',
-            '🟢 STRONG') AS jobs_regime
+    formatDateTime(toStartOfMonth(v.day), '%Y-%m') AS month,
+
+    leftPad(toString(round(avg(v.vol), 1)), 6, ' ') AS vol,
+    leftPad(multiIf(avg(v.vol) < 15, '▁ CALM',
+                    avg(v.vol) < 25, '▃ NORMAL',
+                    avg(v.vol) < 40, '▅ ELEVATED',
+                    '▇ CRISIS'), 12, ' ') AS vol_regime,
+
+    leftPad(toString(round(avg(c.spread_1s10s), 2)), 6, ' ') AS spread,
+    leftPad(multiIf(avg(c.spread_1s10s) < -0.5, '◀◀ DEEP INV',
+                    avg(c.spread_1s10s) < 0,     '◀  INVERTED',
+                    avg(c.spread_1s10s) < 1,     '─▶ FLAT',
+                    '──▶ STEEP'), 12, ' ') AS curve,
+
+    leftPad(toString(round(max(i.cpi_yoy_change), 1)), 6, ' ') AS cpi,
+    leftPad(multiIf(max(i.cpi_yoy_change) > 15, '██ HOT',
+                    max(i.cpi_yoy_change) > 8,  '█░ WARM',
+                    max(i.cpi_yoy_change) > 0,  '░░ STABLE',
+                    '·· DEFLATION'), 14, ' ') AS cpi_regime,
+
+    leftPad(concat(toString(round(max(j.unemployment_rate), 1)), '%'), 6, ' ') AS unemp,
+    leftPad(multiIf(max(j.unemp_6m_delta) > 0.5, '↑ DETERIORATE',
+                    max(j.unemp_6m_delta) > 0,   '↗ SOFTENING',
+                    '↓ STRONG'), 14, ' ') AS jobs
+
 FROM vol_regime v
-LEFT JOIN curve c ON v.day = c.date
-LEFT JOIN infl i ON toStartOfMonth(v.day) = i.date
-LEFT JOIN jobs j ON toStartOfMonth(v.day) = j.date
-WHERE v.day >= '2022-01-01'
+LEFT JOIN curve c ON toStartOfMonth(v.day) = toStartOfMonth(c.date)
+LEFT JOIN infl i ON toStartOfMonth(v.day) = toStartOfMonth(i.date)
+LEFT JOIN jobs j ON toStartOfMonth(v.day) = toStartOfMonth(j.date)
+WHERE v.day >= '2021-01-01'
 GROUP BY month
-ORDER BY month;
+ORDER BY month
+FORMAT PrettyCompactMonoBlock

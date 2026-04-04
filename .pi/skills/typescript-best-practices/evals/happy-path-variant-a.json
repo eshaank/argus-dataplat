@@ -1,0 +1,14 @@
+{
+  "name": "happy-path-variant-a",
+  "task": "Add a new tRPC endpoint for fetching insider trading data for a given ticker. The data comes from an external REST API and should be cached for 5 minutes. Include proper error handling for when the API is down.",
+  "context_files": [
+    ".claude/skills/typescript-best-practices/SKILL.md"
+  ],
+  "assertions": [
+    "Response validates external API data with a Zod schema at the client/service boundary, not passing unvalidated `any` through",
+    "Response uses a TTL cache with a 300-second (5-minute) duration at the service layer, not at the router or client layer",
+    "Response catches errors using `unknown` type in catch blocks (not `any`) and narrows with `instanceof` checks before accessing error properties",
+    "Response uses `import { config } from '../core/config'` or equivalent typed config singleton for API keys, not `process.env.MASSIVE_API_KEY` directly",
+    "Response uses `async/await` syntax rather than raw Promise chains (.then/.catch)"
+  ]
+}

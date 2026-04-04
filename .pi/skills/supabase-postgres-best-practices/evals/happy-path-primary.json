@@ -1,0 +1,12 @@
+{
+  "name": "happy-path-primary",
+  "task": "Design a Postgres schema for a user activity tracking system. Users can have many activity events (page views, clicks, purchases). We need to query by user_id frequently, filter by event_type, and sort by created_at. Include the table definitions and any indexes needed for performance.",
+  "context_files": [],
+  "assertions": [
+    "Response creates an index on the `user_id` column of the activity/events table since it is used in WHERE clauses and JOINs",
+    "Response uses `bigint generated always as identity` or `uuid` for primary keys, not `serial` or bare `integer`",
+    "Response creates a composite or individual index covering `event_type` since it is used in filter conditions",
+    "Response uses lowercase unquoted identifiers for all table and column names (no camelCase or PascalCase in SQL identifiers)",
+    "Response includes foreign key constraint from the activity table's `user_id` to the users table's `id` and indexes the foreign key column"
+  ]
+}

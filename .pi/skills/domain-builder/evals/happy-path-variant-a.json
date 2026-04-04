@@ -1,0 +1,16 @@
+{
+  "name": "happy-path-variant-a",
+  "task": "I need a new domain that fetches analyst consensus ratings and price targets for a given stock ticker. Hook it up so the LLM can use it in chat.",
+  "context_files": [
+    ".claude/skills/domain-builder/SKILL.md",
+    ".rules/architecture.md",
+    ".rules/base-overrides.md"
+  ],
+  "assertions": [
+    "Response creates at least 2 files inside a new domain directory under electron/domains/ (at minimum a router and a client)",
+    "The client file uses a retry mechanism or references the shared HTTP client from electron/core/",
+    "Response includes a tool definition entry with a 'name' field that follows the pattern get_<something> (e.g., get_analyst_ratings or get_price_targets)",
+    "The router file defines at least one tRPC procedure with a Zod input schema that validates a ticker parameter",
+    "Response includes instructions or a diff for wiring the router into electron/trpc/root.ts"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "edge-case-budget-overflow",
+  "task": "Increase the orchestrator's wall-clock budget to 10 minutes and its turn limit to 30. Make sure the safety limits still abort correctly when these new thresholds are hit.",
+  "context_files": [
+    "electron/agents/agent-roles.ts",
+    "electron/agents/shared-extensions/safety-limits.ts"
+  ],
+  "assertions": [
+    "The orchestrator entry in BUDGETS has wallClockMs updated to 600000 (10 minutes)",
+    "The orchestrator entry in BUDGETS has turns updated to 30",
+    "The costUsd budget for the orchestrator is not changed (remains $1.00) unless explicitly requested",
+    "The safety-limits.ts abort logic (agent.abort() call) remains intact and is not bypassed or weakened",
+    "No other agent role budgets (data-analyst, visualizer, dashboard-builder) are modified"
+  ]
+}

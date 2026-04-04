@@ -1,0 +1,15 @@
+{
+  "name": "backend-service-test-happy-path",
+  "task": "Write tests for the pricing domain router. Test that get_price_chart returns OHLC data with the correct fields and that get_quote returns a valid quote object with ticker, last price, and change percentage.",
+  "context_files": [
+    "electron/__tests__/duckdb-session.test.ts",
+    "electron/vitest.config.ts"
+  ],
+  "assertions": [
+    "Test file is created at electron/__tests__/pricing.test.ts (not in frontend/)",
+    "Tests use describe/it blocks with Vitest (import from 'vitest'), not Jest globals",
+    "External HTTP calls to Polygon API are mocked using vi.mock() or vi.fn(), not making real network requests",
+    "At least one test asserts specific field names in the response (e.g., open, high, low, close, volume)",
+    "Each test has at least one meaningful expect() assertion — no tests that only check for truthiness or existence"
+  ]
+}

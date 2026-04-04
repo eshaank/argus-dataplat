@@ -1,0 +1,15 @@
+{
+  "name": "happy-path-variant-b",
+  "task": "Add a real-time WebSocket subscription to the polymarket domain that streams live price updates for a set of prediction market tokens. This should emit events that the frontend can consume via IPC.",
+  "context_files": [
+    ".claude/skills/polymarket-api/SKILL.md",
+    "electron/domains/polymarket/service.ts"
+  ],
+  "assertions": [
+    "Response connects to `wss://ws-subscriptions-clob.polymarket.com/ws/market` for the WebSocket endpoint",
+    "Response sends a JSON message with `type: 'subscribe'` and a `markets` array of token IDs to initiate the subscription",
+    "Response implements reconnection logic or error handling for WebSocket disconnections",
+    "Response uses `JSON.parse` to decode incoming WebSocket messages (since the protocol uses JSON framing)",
+    "Response emits parsed price update events through an IPC channel or event emitter pattern, not returning raw WebSocket frames to the frontend"
+  ]
+}

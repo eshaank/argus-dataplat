@@ -1,0 +1,15 @@
+{
+  "name": "edge-case",
+  "task": "Add a crypto technical analysis endpoint that fetches MACD data for crypto pairs like BTC/USD. The ticker format for crypto is different from stocks (X:BTCUSD vs AAPL). Make sure the implementation handles the crypto ticker format correctly.",
+  "context_files": [
+    ".claude/skills/massive-api/SKILL.md",
+    ".claude/skills/massive-api/references/crypto_commands.md"
+  ],
+  "assertions": [
+    "Response uses `npx -y massive-cli crypto macd` (not `stocks macd`) for crypto MACD data",
+    "Response uses the `X:BTCUSD` ticker format (with `X:` prefix) for crypto pairs, not bare `BTCUSD` or `BTC/USD`",
+    "Response includes `--short-window`, `--long-window`, and `--signal-window` parameters specific to the MACD command",
+    "Response validates or transforms the ticker input to ensure the `X:` prefix is present for crypto tickers",
+    "Response uses the `--timespan` flag with values from the crypto MACD enum (minute, hour, day, week, month, quarter, year), not including `second`"
+  ]
+}

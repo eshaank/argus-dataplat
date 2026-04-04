@@ -1,0 +1,14 @@
+{
+  "name": "happy-path-variant-a",
+  "task": "Create an IPC handler that allows the renderer to request the app version and system info (platform, architecture). This is for the settings/about page.",
+  "context_files": [
+    ".claude/skills/electron-development/SKILL.md"
+  ],
+  "assertions": [
+    "Response uses `ipcMain.handle()` with a named channel and returns data as a Promise, not `ipcMain.on()` with `event.reply()`",
+    "Response adds the channel name to the preload allowlist before exposing it to the renderer via `contextBridge`",
+    "Response does not enable `nodeIntegration` or disable `contextIsolation` to give the renderer access to `process` or `os` modules",
+    "Response uses `contextBridge.exposeInMainWorld()` to expose the invoke function, not `window.require` or `@electron/remote`",
+    "Response strips the IPC event object and does not forward `IpcRendererEvent` to the renderer callback"
+  ]
+}

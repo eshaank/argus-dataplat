@@ -1,0 +1,14 @@
+{
+  "name": "boundary-reference-compliance",
+  "task": "I need to fetch quotes for a list of tickers in parallel. Some might fail (API rate limits, invalid tickers). Write a function that fetches all of them concurrently and returns the successful results without crashing on individual failures.",
+  "context_files": [
+    ".claude/skills/typescript-best-practices/SKILL.md"
+  ],
+  "assertions": [
+    "Response uses `Promise.allSettled()` (not `Promise.all()`) to handle partial failures without rejecting the entire batch",
+    "Response filters results using a type guard that narrows `PromiseSettledResult` to `PromiseFulfilledResult` via `r.status === 'fulfilled'`",
+    "Response includes explicit return type annotation on the function (e.g., `Promise<SnapshotQuote[]>` or equivalent typed array)",
+    "Response groups imports in order: external packages first, then internal packages (@argus/*), then relative imports",
+    "Response uses `z.infer<typeof SomeSchema>` or a pre-defined interface for the quote type, not an inline `any` or untyped object"
+  ]
+}

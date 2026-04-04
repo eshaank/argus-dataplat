@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "together-ai-docs": {
+      "type": "http",
+      "url": "https://docs.together.ai/mcp"
+    },
+    "codemogger": {
+      "command": "npx",
+      "args": ["-y", "codemogger", "mcp"]
+    },
+    "ThetaData": {
+      "type": "sse",
+      "url": "http://127.0.0.1:25503/mcp/sse"
+    }
+  }
+}

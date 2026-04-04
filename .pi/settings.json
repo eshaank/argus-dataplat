@@ -1,0 +1,92 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Write(*)",
+      "Edit(*)",
+      "Read(*)"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/skill-loader-reminder.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/lint-on-save.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/verify-no-secrets.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/check-rulecatch.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/check-env-sync.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/block-secrets.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/skill-loader-gate.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/check-branch.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/check-ports.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/check-rybbit.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/check-e2e.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

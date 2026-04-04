@@ -1,0 +1,14 @@
+{
+  "name": "happy-path-loop-runs",
+  "task": "Run /autoresearch on the go-dev skill. Its evals already exist. Improve it until it passes all assertions or you hit a limit.",
+  "context_files": [],
+  "assertions": [
+    "Response creates a git branch named autoresearch/go-dev before making any edits",
+    "Response displays baseline score before starting the improvement loop",
+    "Response makes exactly one edit per iteration and re-runs evals before deciding to commit or revert",
+    "Response commits when score improves and reverts working tree changes when score regresses",
+    "Response prints a progress line after each iteration showing current score, delta, and stall count",
+    "Response generates a markdown report saved to evals/results/ at the end of the run",
+    "Response does NOT edit any files inside the evals/ directory"
+  ]
+}

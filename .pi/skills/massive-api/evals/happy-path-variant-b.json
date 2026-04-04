@@ -1,0 +1,17 @@
+{
+  "name": "happy-path-variant-b",
+  "task": "Add an options chain lookup tool to the chat system. Users should be able to ask 'show me the options chain for AAPL' and get call/put data. Use the Massive API options chain endpoint. Put the domain logic in a new options domain or extend an existing one.",
+  "context_files": [
+    ".claude/skills/massive-api/SKILL.md",
+    ".claude/skills/massive-api/references/options_commands.md",
+    "electron/domains/chat/tool-defs.ts",
+    "electron/domains/chat/tool-registry.ts"
+  ],
+  "assertions": [
+    "Response uses `npx -y massive-cli options chain --underlying <ticker>` as the CLI command pattern",
+    "Response includes optional filter parameters for `--type` (call/put), `--strike`, and `--expiration` in the tool definition",
+    "Response adds shared response types in `shared/types/` for the options chain data",
+    "Response creates a domain directory structure with at minimum `router.ts` and `client.ts` files",
+    "Response registers the router in `electron/trpc/root.ts`"
+  ]
+}

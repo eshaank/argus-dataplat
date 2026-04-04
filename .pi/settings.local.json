@@ -1,0 +1,45 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/eshaan/projects/finance-dashboard/electron -name *database* -o -name *db* -o -name *schema*)",
+      "Bash(npm install:*)",
+      "Bash(export PATH=\"$HOME/.bun/bin:$PATH\")",
+      "Bash(bun install:*)",
+      "Read(//Users/eshaan/.bun/bin/**)",
+      "Read(//opt/homebrew/bin/**)",
+      "Bash(ls /Users/eshaan/projects/finance-dashboard/*.lock*)",
+      "Bash(/Users/eshaan/.bun/bin/bun install:*)",
+      "Bash(PATH=\"/Users/eshaan/.bun/bin:/opt/homebrew/bin:$PATH\" /Users/eshaan/.bun/bin/bun install)",
+      "Bash(node:*)",
+      "Bash(ls /Users/eshaan/projects/finance-dashboard/electron/node_modules/better-sqlite3/build/Release/*.node)",
+      "Bash(PATH=\"/opt/homebrew/bin:$PATH\" npx --yes node-gyp rebuild --directory=node_modules/better-sqlite3)",
+      "Bash(PATH=\"/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH\" node-gyp rebuild)",
+      "Bash(npx tsc:*)",
+      "Bash(export PATH=\"/Users/eshaan/.bun/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH\")",
+      "Bash(bunx tsc:*)",
+      "Bash(npx @electron/rebuild -f -w better-sqlite3 --module-dir electron)",
+      "Bash(npx --yes @electron/rebuild --force --only better-sqlite3 --module-dir electron)",
+      "Bash(node -e \"console.log\\(require\\(''electron/package.json''\\).version\\)\")",
+      "Bash(npx node-gyp:*)",
+      "Bash(npx electron:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "mcp__together-ai-docs__search_together_ai_docs",
+      "WebFetch(domain:docs.together.ai)",
+      "Skill(update-config)",
+      "WebSearch",
+      "WebFetch(domain:opencode.ai)",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.agentrecipes.com)",
+      "WebFetch(domain:docs.vllm.ai)",
+      "WebFetch(domain:raw.githubusercontent.com)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "together-ai-docs",
+    "codemogger"
+  ]
+}

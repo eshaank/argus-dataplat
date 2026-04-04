@@ -1,0 +1,16 @@
+{
+  "name": "add-new-tool-happy-path",
+  "task": "Add a new tool called get_analyst_ratings that fetches analyst consensus ratings for a stock ticker. It should call the financials domain client's getAnalystRatings function and return the result.",
+  "context_files": [
+    "electron/domains/chat/tool-defs.ts",
+    "electron/domains/chat/tool-registry.ts",
+    "electron/domains/chat/data-cache.ts"
+  ],
+  "assertions": [
+    "A tool definition named 'get_analyst_ratings' is added in tool-defs.ts using the tool() helper with a description that specifies WHEN to use it",
+    "An entry for 'get_analyst_ratings' is added to TOOL_DOMAIN_MAP mapping it to the 'financials' domain string",
+    "An else-if branch for 'get_analyst_ratings' is added in the executeTool() function in tool-registry.ts that calls the domain client and serializes with JSON.stringify and bigintReplacer",
+    "The tool definition's parameters object includes a required 'ticker' field of type string",
+    "The tool definition's description includes a 'Returns:' field describing the response shape"
+  ]
+}

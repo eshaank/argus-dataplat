@@ -32,6 +32,7 @@ def transform_polygon_aggs(results: list[dict], ticker: str) -> pl.DataFrame:
         pl.col("vw").cast(pl.Float64).alias("vwap"),
         pl.col("n").cast(pl.UInt32).alias("transactions"),
         pl.lit("polygon_backfill").alias("source"),
+        pl.lit(datetime.now(timezone.utc)).cast(pl.Datetime("ms", "UTC")).alias("ingested_at"),
     )
 
     return df
@@ -58,6 +59,7 @@ def transform_schwab_candles(candles: list[dict], ticker: str) -> pl.DataFrame:
         pl.lit(None).cast(pl.Float64).alias("vwap"),
         pl.lit(None).cast(pl.UInt32).alias("transactions"),
         pl.lit("schwab").alias("source"),
+        pl.lit(datetime.now(timezone.utc)).cast(pl.Datetime("ms", "UTC")).alias("ingested_at"),
     )
 
     return df

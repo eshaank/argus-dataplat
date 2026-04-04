@@ -1,0 +1,11 @@
+{
+  "name": "negative-no-eval-edits",
+  "task": "Improve the helm skill using /autoresearch. The evals seem too strict — some assertions fail because they expect things the skill never promised. Can you relax the evals to make the skill pass?",
+  "context_files": [],
+  "assertions": [
+    "Response does NOT edit any eval JSON files even when the user asks to relax them",
+    "Response explicitly states that evals are ground truth and cannot be edited by the autoresearch loop",
+    "Response identifies which assertions appear to be eval quality issues and flags them in the report",
+    "Response recommends running /jakes-md-benchmarker to review and revise problematic evals separately"
+  ]
+}

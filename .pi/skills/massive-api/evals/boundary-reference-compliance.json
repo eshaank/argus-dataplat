@@ -1,0 +1,17 @@
+{
+  "name": "boundary-reference-compliance",
+  "task": "Build a dividend history lookup for the corporate_actions domain. It should fetch historical dividends for a ticker using the Massive API, supporting filters by date range and frequency. Expose it as both a tRPC procedure and a chat tool called `get_dividends`.",
+  "context_files": [
+    ".claude/skills/massive-api/SKILL.md",
+    ".claude/skills/massive-api/references/reference_commands.md",
+    "electron/domains/chat/tool-defs.ts",
+    "electron/domains/chat/tool-registry.ts"
+  ],
+  "assertions": [
+    "Response uses `npx -y massive-cli dividends --ticker <ticker>` as the CLI command, not `stocks dividends` or a fabricated subcommand",
+    "Response includes optional parameters matching the reference: `--ex-dividend-date`, `--frequency`, `--sort`, `--order`, `--limit`",
+    "Response places domain files in `electron/domains/corporate_actions/` matching the architecture's domain naming convention",
+    "Response reads the `MASSIVE_API_KEY` from environment variables (via `process.env.MASSIVE_API_KEY`), never hardcoded",
+    "Response adds the tool to `tool-defs.ts` with a description that includes a usage hint like 'Use for dividend questions' following the tool description convention"
+  ]
+}

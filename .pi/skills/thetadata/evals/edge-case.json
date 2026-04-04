@@ -1,0 +1,17 @@
+{
+  "name": "edge-case",
+  "task": "Handle the case where ThetaData returns no data for a contract (the contract didn't trade on certain days, or is a very illiquid deep OTM option). The greeks endpoint might return rows for dates where the EOD or OI endpoint returns nothing, or vice versa. Also handle contracts where ThetaTerminal returns an error like 'Nonexistent root symbol or expiration'.",
+  "context_files": [
+    ".pi/skills/thetadata/SKILL.md",
+    ".pi/skills/dataplat/SKILL.md",
+    "argus-dataplat/src/dataplat/transforms/validation.py",
+    "argus-dataplat/OPTIONS_BACKFILL_PLAN.md"
+  ],
+  "assertions": [
+    "Response uses a left join from greeks onto EOD/OI (greeks is the primary dataset), filling missing volume/OI/OHLCV with 0 or null rather than dropping rows",
+    "Response catches and logs 'Nonexistent root symbol or expiration' errors from ThetaTerminal without crashing the backfill, continuing to the next contract",
+    "Response handles empty `response` arrays (zero rows returned) gracefully by returning an empty DataFrame, not raising an exception",
+    "Response validates that required fields (delta, gamma, theta, vega, implied_vol, bid, ask) are not null/NaN before inserting, dropping invalid rows with a warning log",
+    "Response tracks failed contracts in a list and logs a summary at the end of the backfill run for manual retry"
+  ]
+}

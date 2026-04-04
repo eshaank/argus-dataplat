@@ -1,0 +1,16 @@
+{
+  "name": "happy-path-primary",
+  "task": "Review this new tRPC router I added for a 'watchlist' feature. The files are at electron/domains/watchlist/router.ts and electron/domains/watchlist/service.ts. Check for security issues, TypeScript quality, and architecture compliance.",
+  "context_files": [
+    ".claude/skills/code-review/SKILL.md",
+    ".rules/architecture.md",
+    ".rules/base.md"
+  ],
+  "assertions": [
+    "Response checks for hardcoded secrets or API keys in the reviewed files",
+    "Response checks for input validation on user-provided parameters (e.g., Zod schemas, Query validators)",
+    "Response checks for the presence of authentication/authorization on route handlers",
+    "Each identified issue includes a severity level (Critical, Warning, or Suggestion — or equivalent labels)",
+    "Each identified issue includes a specific file location (filename and line number or code reference)"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "happy-path-variant-a",
+  "task": "Build a metrics card widget that shows key earnings data: EPS, revenue, net income, and profit margin. Each metric should show the value and a quarter-over-quarter change indicator (green for positive, red for negative).",
+  "context_files": [
+    ".claude/skills/widget-builder/SKILL.md",
+    "project-docs/argus-style-guide.md"
+  ],
+  "assertions": [
+    "Positive change values use var(--green) or #34d399 via CSS variable, and negative values use var(--red) or #f87171 via CSS variable",
+    "Large metric values use JetBrains Mono at approximately 20px (between 18px and 22px) as specified for metric values",
+    "The component handles empty or missing data without crashing (includes a conditional check, fallback, or empty state rendering)",
+    "The widget does not use any box-shadow properties — depth comes from surface color only",
+    "The component includes a widget-header section that renders the payload title"
+  ]
+}
