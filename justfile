@@ -64,6 +64,18 @@ migrate-to-cloud *ARGS:
 backfill-options *ARGS:
     uv run python -m dataplat.cli.backfill_options {{ARGS}}
 
+# Backfill from SEC EDGAR (financials, filings, insider trades, institutional holders)
+# Examples:
+#   just backfill-edgar --all --universe all
+#   just backfill-edgar --financials --tickers NBIS,ARM
+#   just backfill-edgar --filings --universe spy
+#   just backfill-edgar --insider --universe spy --insider-years 3
+#   just backfill-edgar --institutional --universe spy
+#   just backfill-edgar --all --gaps-only
+#   just backfill-edgar --all --universe all --dry-run
+backfill-edgar *ARGS:
+    uv run python -m dataplat.cli.backfill_edgar {{ARGS}}
+
 # Run tests
 test:
     uv run pytest tests/ -v
