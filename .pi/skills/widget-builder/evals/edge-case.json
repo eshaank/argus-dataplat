@@ -1,0 +1,15 @@
+{
+  "name": "edge-case",
+  "task": "Create a comparison table widget that shows side-by-side metrics for 2-5 companies. The number of companies is dynamic — it could be 2 or it could be 5. Handle the variable column count gracefully.",
+  "context_files": [
+    ".claude/skills/widget-builder/SKILL.md",
+    "project-docs/argus-style-guide.md"
+  ],
+  "assertions": [
+    "The component dynamically renders columns based on the data array length — does not hardcode a fixed number of company columns",
+    "The component includes handling for the minimum case (2 companies) and does not break visually or logically with that count",
+    "Borders use 1px width only — no border wider than 1px appears in the component styles",
+    "The component accepts WidgetPayload as its props type (not a custom one-off interface that diverges from the contract)",
+    "Hover states are defined for interactive elements (rows, cells, or the card itself) with a transition duration specified"
+  ]
+}

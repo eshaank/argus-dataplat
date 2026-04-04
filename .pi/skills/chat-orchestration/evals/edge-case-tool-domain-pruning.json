@@ -1,0 +1,15 @@
+{
+  "name": "edge-case-tool-domain-pruning",
+  "task": "The LLM keeps calling get_income_statement when users ask about earnings per share, but it should be calling get_ratios instead. Debug and fix the tool descriptions so the LLM picks the right tool for EPS questions.",
+  "context_files": [
+    "electron/domains/chat/tool-defs.ts",
+    "electron/domains/chat/tool-registry.ts"
+  ],
+  "assertions": [
+    "The get_ratios tool description in tool-defs.ts is updated to explicitly mention EPS or earnings-per-share as a use case",
+    "The get_income_statement tool description is updated to clarify it is NOT the primary tool for standalone EPS queries",
+    "Changes are limited to tool descriptions in tool-defs.ts — no changes to executeTool dispatch logic or service.ts streaming loop",
+    "Both modified descriptions still follow the pattern of specifying WHEN to use the tool",
+    "The TOOL_DOMAIN_MAP entries for both tools remain unchanged"
+  ]
+}

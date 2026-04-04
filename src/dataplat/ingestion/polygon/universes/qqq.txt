@@ -1,4 +1,3 @@
-AAPL
 ABNB
 ADBE
 ADI
@@ -99,3 +98,4 @@ WDC
 WMT
 XEL
 ZS
+AAPL

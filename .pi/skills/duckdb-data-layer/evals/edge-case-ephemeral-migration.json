@@ -1,0 +1,15 @@
+{
+  "name": "edge-case-ephemeral-migration",
+  "task": "There's a bug where switching conversations loses the DuckDB session data. When a user starts a new chat, queries some data, then the conversation gets an ID assigned, the migration from ephemeral to on-disk seems to drop some tables. Debug and fix the migrateEphemeralToConversation function.",
+  "context_files": [
+    "electron/core/duckdb.ts",
+    "electron/domains/chat/data-cache.ts"
+  ],
+  "assertions": [
+    "The fix is applied in electron/core/duckdb.ts where migrateEphemeralToConversation() is defined",
+    "The migration logic exports ALL session_* tables (not a hardcoded subset) — either by querying information_schema or iterating a complete table list",
+    "The migration handles schema differences between ephemeral and on-disk tables (e.g., missing columns are handled gracefully)",
+    "The migration is not called twice for the same conversation (guard against duplicate migration)",
+    "The ephemeral database is closed after successful migration to the on-disk file"
+  ]
+}

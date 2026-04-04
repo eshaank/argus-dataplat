@@ -1,0 +1,16 @@
+{
+  "name": "happy-path-variant-b",
+  "task": "Add a new domain for options chain data. Users should be able to query the options chain for any ticker, filtered by expiration date. Include both calls and puts.",
+  "context_files": [
+    ".claude/skills/domain-builder/SKILL.md",
+    ".rules/architecture.md",
+    ".rules/base-overrides.md"
+  ],
+  "assertions": [
+    "Response creates a domain directory named 'options' or 'options_chain' (snake_case, not camelCase or PascalCase)",
+    "The client file validates that the required API key environment variable exists before making requests",
+    "Response defines TypeScript types or interfaces for the options chain response data (strike, expiration, type/side, bid, ask, or similar fields)",
+    "The tool registry entry description mentions options, calls, puts, or expiration — making it unambiguous for LLM tool selection",
+    "The router includes error handling that converts exceptions to appropriate error responses (not raw stack traces)"
+  ]
+}

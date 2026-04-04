@@ -10,6 +10,7 @@ import logging
 import time
 
 from dataplat.db.client import get_client
+from dataplat.db.migrate import ensure_schema
 from dataplat.ingestion.schwab.client import get_schwab_client
 from dataplat.transforms.ohlcv import transform_schwab_candles
 from dataplat.transforms.validation import validate_ohlcv
@@ -65,6 +66,7 @@ def _backfill_ticker(ticker: str, years: int) -> int:
 def run_schwab_backfill(tickers: list[str], years: int = 20) -> None:
     """Backfill daily candles for a list of tickers."""
     logger.info("Schwab daily backfill: %d tickers, %d years", len(tickers), years)
+    ensure_schema()
     start_time = time.monotonic()
     total_rows = 0
     failures: list[str] = []

@@ -1,0 +1,16 @@
+{
+  "name": "boundary-esm-import-compliance",
+  "task": "Add a new delegation tool in the orchestrator that spawns the report-writer sub-agent. The tool should be called run_report_generation and follow the same delegation pattern as run_data_analysis.",
+  "context_files": [
+    "electron/agents/sub-agents/orchestrator.ts",
+    "electron/agents/agent-factory.ts",
+    "electron/agents/pi-imports.ts"
+  ],
+  "assertions": [
+    "The run_report_generation tool is added to the orchestrator's tool list in orchestrator.ts",
+    "Pi runtime packages (@mariozechner/pi-ai, @mariozechner/pi-agent-core) are imported using dynamic import() or the pi-imports.ts helper, never static import statements",
+    "Type-only imports (import type) are used for Pi type references that are erased at compile time",
+    "The delegation tool follows the same pattern as run_data_analysis: calls the sub-agent runner and returns a summary",
+    "The tool captures the sub-agent result and makes it available for artifact data injection"
+  ]
+}

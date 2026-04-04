@@ -1,0 +1,14 @@
+{
+  "name": "happy-path-primary",
+  "task": "Create a new domain service for fetching analyst ratings from the Massive API. It should include a client.ts that calls the API, a service.ts with caching, and a router.ts with a tRPC procedure. The endpoint is GET /analyst-ratings/{ticker}.",
+  "context_files": [
+    ".claude/skills/typescript-best-practices/SKILL.md"
+  ],
+  "assertions": [
+    "Response includes a Zod schema to validate the external API response in client.ts, using z.object() with typed fields",
+    "Response defines the tRPC router in a file named `router.ts` with input validation using z.object() containing a ticker field with z.string()",
+    "Response uses the shared HTTP client (`ky` or import from core) for API calls rather than fetch, axios, or node-fetch",
+    "Response separates code into at least three files following the domain module pattern: router.ts, service.ts, and client.ts",
+    "Response uses `interface` for object shapes (not `type` for plain objects) and string literal unions for enum-like types (not TypeScript `enum`)"
+  ]
+}

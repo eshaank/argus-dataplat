@@ -1,0 +1,14 @@
+{
+  "name": "boundary-reference-compliance",
+  "task": "Add a new streaming IPC channel for live agent status updates. The main process needs to push progress events (thinking, tool_call, result, error, done) to the renderer as the agent executes. The renderer should be able to subscribe and unsubscribe.",
+  "context_files": [
+    ".claude/skills/electron-development/SKILL.md"
+  ],
+  "assertions": [
+    "Response uses `webContents.send()` from the main process to push events to the renderer, not `ipcMain.handle()` for streaming",
+    "Response adds the event channel to the preload's `on()` allowlist (separate from the `invoke()` allowlist)",
+    "Response returns a cleanup/unsubscribe function from the preload `on()` method that calls `ipcRenderer.removeListener()`",
+    "Response does not forward the raw `IpcRendererEvent` object to the renderer callback — it strips the event parameter",
+    "Response defines typed event payloads with a discriminated `type` field (e.g., `type: 'thinking' | 'tool_call' | 'result' | 'error' | 'done'`)"
+  ]
+}

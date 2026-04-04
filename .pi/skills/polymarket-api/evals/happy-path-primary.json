@@ -1,0 +1,18 @@
+{
+  "name": "happy-path-primary",
+  "task": "Add a new tRPC procedure to the polymarket domain that fetches active prediction market events from the Gamma API. Users should be able to ask 'what are the top prediction markets right now?' and see a list of active events with their current odds. Wire it up as a chat tool called `get_polymarket_events`.",
+  "context_files": [
+    ".claude/skills/polymarket-api/SKILL.md",
+    "electron/domains/polymarket/router.ts",
+    "electron/domains/polymarket/client.ts",
+    "electron/domains/chat/tool-defs.ts",
+    "electron/domains/chat/tool-registry.ts"
+  ],
+  "assertions": [
+    "Response uses the Gamma API base URL `https://gamma-api.polymarket.com` for fetching events, not the CLOB API",
+    "Response calls `GET /events` or `GET /markets` on the Gamma API with an `active` filter parameter",
+    "Response includes a chat tool definition in `tool-defs.ts` with the name `get_polymarket_events`",
+    "Response includes a handler in `tool-registry.ts` that calls the polymarket domain service via TypeScript import",
+    "Response defines TypeScript types for the event response including at minimum `slug`, `title`, and market probability/price fields"
+  ]
+}

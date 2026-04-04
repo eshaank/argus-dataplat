@@ -1,0 +1,16 @@
+{
+  "name": "boundary-reference-compliance",
+  "task": "Build an order placement flow for Polymarket. Users should be able to place limit orders on prediction markets. Support GTC and FOK order types. Make sure authentication is handled correctly since placing orders requires Level 2 auth.",
+  "context_files": [
+    ".claude/skills/polymarket-api/SKILL.md",
+    "electron/domains/polymarket/client.ts",
+    "electron/domains/polymarket/service.ts"
+  ],
+  "assertions": [
+    "Response uses `POST /order` on the CLOB API (`https://clob.polymarket.com`) for order placement",
+    "Response requires Level 2 authentication with API credentials derived from a private key, not just a public API key",
+    "Response creates orders with `OrderArgs` containing `token_id`, `price`, `size`, and `side` parameters matching the SKILL.md pattern",
+    "Response supports both GTC (Good Till Cancelled) and FOK (Fill or Kill) order types as the `order_type` parameter",
+    "Response handles `INSUFFICIENT_BALANCE` and `INVALID_PRICE` error cases from `PolymarketException` explicitly, not with a generic catch-all"
+  ]
+}

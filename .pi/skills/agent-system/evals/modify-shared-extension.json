@@ -1,0 +1,15 @@
+{
+  "name": "modify-shared-extension",
+  "task": "Add a new shared extension called web-scraper.ts in the shared-extensions directory. It should provide a scrape_url tool that fetches HTML from a URL, strips tags, and returns plain text. Respect the sandbox network allowlist.",
+  "context_files": [
+    "electron/agents/shared-extensions/sandbox-bash.ts",
+    "electron/agents/shared-extensions/argus-data-tools.ts"
+  ],
+  "assertions": [
+    "A new file is created at electron/agents/shared-extensions/web-scraper.ts",
+    "The extension provides a Pi-compatible tool definition with name, description, and parameters",
+    "The implementation respects the sandbox network allowlist constraint — either adds target domains to the sandbox allowlist or documents why the URL must be pre-approved",
+    "The tool returns plain text (not raw HTML) by stripping HTML tags from the fetched content",
+    "The tool includes a timeout or error handling for network failures"
+  ]
+}

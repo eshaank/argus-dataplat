@@ -1,0 +1,12 @@
+{
+  "name": "edge-case-continue-flag",
+  "task": "Run /autoresearch helm --continue --hint 'The failing assertions are about values.yaml structure — try adding explicit template examples to the reference files'",
+  "context_files": [],
+  "assertions": [
+    "Response checks out the existing autoresearch/helm branch rather than creating a new one",
+    "Response loads the existing autoresearch-helm-log.json to restore loop state",
+    "Response diffs current evals against the eval snapshot in the log and reports any changes",
+    "Response incorporates the hint into its root-cause analysis for the first new iteration",
+    "Response does NOT reset the iteration counter — it continues numbering from the prior run"
+  ]
+}

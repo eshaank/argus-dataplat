@@ -1,0 +1,17 @@
+{
+  "name": "happy-path-primary",
+  "task": "Add a new tool to the chat system that fetches stock aggregate bars (OHLC data) for a given ticker and date range using the Massive API. The tool should be called `get_price_chart` and belong to the `pricing` domain. It needs to support configurable timespan (day, week, month) and return the data in a format suitable for charting.",
+  "context_files": [
+    ".claude/skills/massive-api/SKILL.md",
+    ".claude/skills/massive-api/references/stocks_commands.md",
+    "electron/domains/chat/tool-defs.ts",
+    "electron/domains/chat/tool-registry.ts"
+  ],
+  "assertions": [
+    "Response uses `npx -y massive-cli stocks aggs` as the CLI command pattern, not a raw HTTP request or different CLI tool",
+    "Response includes `--ticker`, `--from`, `--to`, and `--timespan` flags in the CLI invocation",
+    "Response defines a Zod schema for the tool input parameters with at least `ticker`, `from`, `to`, and `timespan` fields",
+    "Response adds a tool entry in `tool-defs.ts` with a `description` string that specifies WHEN to use the tool (not just what it does)",
+    "Response adds a handler in `tool-registry.ts` that calls the pricing domain service via TypeScript import (in-process), not via IPC"
+  ]
+}

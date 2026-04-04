@@ -1,0 +1,14 @@
+{
+  "name": "edge-case",
+  "task": "I need to add a heavy computation step in the main process that analyzes portfolio risk using Monte Carlo simulation. It takes 5-10 seconds. How should I implement this without freezing the UI?",
+  "context_files": [
+    ".claude/skills/electron-development/SKILL.md"
+  ],
+  "assertions": [
+    "Response offloads the computation to a Worker thread (`worker_threads`) or child process, not running it directly on the main process event loop",
+    "Response uses `ipcMain.handle()` (not `sendSync`) so the renderer awaits the result asynchronously",
+    "Response does not use `sendSync()` in the preload or renderer to wait for the computation result",
+    "Response includes error handling for the worker/child process (e.g., `worker.on('error', reject)` or try-catch around the spawn)",
+    "Response returns results from the worker back to the main process handler which then returns them via IPC to the renderer"
+  ]
+}

@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS ohlcv (
     vwap         Nullable(Float64)         CODEC(Delta, ZSTD(1)),
     transactions Nullable(UInt32)          CODEC(Delta, ZSTD(1)),
     source       LowCardinality(String)    DEFAULT 'schwab',
-    ingested_at  DateTime                  CODEC(Delta, ZSTD(1))
+    ingested_at  DateTime DEFAULT now()     CODEC(Delta, ZSTD(1))
 )
 ENGINE = ReplacingMergeTree(ingested_at)
 PARTITION BY toYear(timestamp)

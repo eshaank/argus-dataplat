@@ -1,0 +1,14 @@
+{
+  "name": "happy-path-variant-b",
+  "task": "Create a utility module for formatting financial numbers (currency, percentages, large numbers with abbreviations like 1.2B, 340M). It should be fully typed and handle edge cases like null/undefined inputs.",
+  "context_files": [
+    ".claude/skills/typescript-best-practices/SKILL.md"
+  ],
+  "assertions": [
+    "Response uses `function` declarations (not arrow functions) for exported utility functions",
+    "Response handles null/undefined inputs explicitly in the type signature (e.g., `value: number | null`) rather than silently accepting `any`",
+    "Response uses `const` arrow functions for internal/private helper functions within the module",
+    "Response file is named in kebab-case (e.g., `format-currency.ts` or `number-formatters.ts`), not camelCase or PascalCase",
+    "Response includes early returns for edge cases (null, undefined, zero) rather than nested if-else blocks"
+  ]
+}

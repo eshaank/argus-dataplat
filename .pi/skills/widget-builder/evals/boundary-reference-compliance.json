@@ -1,0 +1,15 @@
+{
+  "name": "boundary-reference-compliance",
+  "task": "Create a horizontal bar chart widget for showing short interest as a percentage of float for multiple tickers. Include a legend.",
+  "context_files": [
+    ".claude/skills/widget-builder/SKILL.md",
+    "project-docs/argus-style-guide.md"
+  ],
+  "assertions": [
+    "Response reads or references project-docs/argus-style-guide.md before creating the component",
+    "Chart bars have border-radius applied only to the top (or the leading edge for horizontal) — not uniformly rounded on all corners",
+    "The legend uses square color indicators (approximately 8px) with border-radius 2px as specified in the SKILL.md checklist",
+    "The widget uses var(--chart-1), var(--chart-2), etc. for bar colors — not arbitrary colors or inline hex values",
+    "Tooltips (if included) use var(--bg-tertiary) for background and var(--border) for border with border-radius 8px"
+  ]
+}

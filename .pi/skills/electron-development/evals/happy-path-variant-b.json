@@ -1,0 +1,14 @@
+{
+  "name": "happy-path-variant-b",
+  "task": "Configure a new BrowserWindow for a detachable chart viewer panel. It should open as a separate window that displays a specific artifact/chart. Make sure it follows Argus security standards.",
+  "context_files": [
+    ".claude/skills/electron-development/SKILL.md"
+  ],
+  "assertions": [
+    "Response includes `contextIsolation: true` in the BrowserWindow webPreferences",
+    "Response includes `nodeIntegration: false` in the BrowserWindow webPreferences",
+    "Response includes `sandbox: true` in the BrowserWindow webPreferences",
+    "Response includes `webviewTag: false` in the BrowserWindow webPreferences",
+    "Response uses `app.isPackaged` (not `process.env.NODE_ENV`) to determine whether to load from localhost URL or file path"
+  ]
+}

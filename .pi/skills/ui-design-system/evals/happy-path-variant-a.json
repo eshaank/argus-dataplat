@@ -1,0 +1,14 @@
+{
+  "name": "happy-path-variant-a",
+  "task": "Create a financial metrics dashboard card that shows a company's revenue with a large number, a small label above it, and a change indicator showing if revenue went up or down quarter over quarter.",
+  "context_files": [
+    ".claude/skills/ui-design-system/SKILL.md"
+  ],
+  "assertions": [
+    "Response uses CSS variables from the design token set (e.g., `var(--bg-secondary)`, `var(--text-muted)`) rather than hardcoded hex colors",
+    "Response uses `JetBrains Mono` for the revenue number display, not `DM Sans` or system fonts",
+    "Response includes a label styled with uppercase text-transform, letter-spacing of 0.06-0.08em, and font-size of 10-11px",
+    "Response uses `1px solid var(--border-subtle)` or `1px solid var(--border)` for the card border, not thicker borders or box-shadow",
+    "Response uses `var(--green)` for positive and `var(--red)` for negative change indicators, not arbitrary color values"
+  ]
+}

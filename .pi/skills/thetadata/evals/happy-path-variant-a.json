@@ -1,0 +1,17 @@
+{
+  "name": "happy-path-variant-a",
+  "task": "Write the Polars transform that merges ThetaData's three API responses (EOD quote greeks, EOD OHLCV, and open interest) into a single DataFrame matching the option_chains ClickHouse schema. It should handle the positional array format that ThetaData returns, join the three datasets on date, and add contract identity columns.",
+  "context_files": [
+    ".pi/skills/thetadata/SKILL.md",
+    ".pi/skills/dataplat/SKILL.md",
+    "argus-dataplat/src/dataplat/transforms/ohlcv.py",
+    "argus-dataplat/OPTIONS_BACKFILL_PLAN.md"
+  ],
+  "assertions": [
+    "Response uses Polars (not pandas) for all DataFrame operations — no `import pandas` anywhere",
+    "Response parses ThetaData's positional array format by zipping `header.format` field names with each row in `response`",
+    "Response converts strike from tenths-of-cent integer to Float64 dollars (divide by 1000) and date from YYYYMMDD integer to a Date type",
+    "Response joins greeks, EOD, and open interest DataFrames on the `date` column",
+    "Response adds `source` column with value `'thetadata'` and maps `right` (C/P) to the ClickHouse Enum values ('call'/'put')"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "edge-case-duckdb-integration",
+  "task": "Write a DuckDB integration test for the dividends cache. Verify that caching dividend data via cacheDividends() and then querying it via query_data returns the correct rows with matching field values.",
+  "context_files": [
+    "electron/__tests__/duckdb-session.test.ts",
+    "electron/domains/chat/data-cache.ts"
+  ],
+  "assertions": [
+    "The test uses a real DuckDB in-memory instance (initSessionDb in beforeAll, closeSessionDb in afterAll), not a mock",
+    "resetSessionData() is called in beforeEach to ensure test isolation between cases",
+    "The test inserts data via the cacheDividends() function, then reads it back via a SELECT query on session_dividends",
+    "Assertions compare specific field values (e.g., ticker, ex_date, amount) between input and query output",
+    "The test file imports from 'vitest' (describe, it, expect, beforeAll, afterAll, beforeEach)"
+  ]
+}

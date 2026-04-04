@@ -1,0 +1,14 @@
+{
+  "name": "boundary-reference-compliance",
+  "task": "Build a ToolCallIndicator component that shows when the AI is calling an API tool. It should display an icon, the tool name, parameters summary, and a completion status checkmark.",
+  "context_files": [
+    ".claude/skills/ui-design-system/SKILL.md"
+  ],
+  "assertions": [
+    "Response uses `var(--bg-tertiary)` for the tool call indicator background",
+    "Response uses `JetBrains Mono` at 11px for the tool name text",
+    "Response uses `var(--accent-glow)` (rgba(91, 140, 255, 0.08)) for the icon background and `var(--green)` for the completion checkmark",
+    "Response uses `border-radius: 8px` for the tool call container and `1px solid var(--border-subtle)` for its border",
+    "Response uses stroke-only icons (specifying `fill=\"none\"` or `fill: none` and `stroke-width` of 1.8 or 2.0), never filled icons"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "happy-path-primary",
+  "task": "Build a MetricCard component that displays a stock metric with a label, numeric value, and percentage change badge. It should show green for positive changes and red for negative changes.",
+  "context_files": [
+    ".claude/skills/ui-design-system/SKILL.md"
+  ],
+  "assertions": [
+    "Response uses `var(--bg-secondary)` for the card background, not a hardcoded hex value",
+    "Response uses `JetBrains Mono` font-family for the metric value (e.g., price or percentage number)",
+    "Response uses `var(--green)` or `var(--green-dim)` for positive change styling and `var(--red)` or `var(--red-dim)` for negative change styling",
+    "Response applies `border-radius: 12px` (or equivalent 10-12px range) to the outer card container",
+    "Response uses `var(--text-muted)` for the label text color and `var(--text-primary)` for the metric value text color"
+  ]
+}

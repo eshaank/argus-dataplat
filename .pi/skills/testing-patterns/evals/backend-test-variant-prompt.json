@@ -1,0 +1,15 @@
+{
+  "name": "backend-test-variant-prompt",
+  "task": "Add tests for the short_interest domain. I need tests covering get_short_interest, get_short_volume, and get_float. Mock the HTTP layer and test the data transformation logic.",
+  "context_files": [
+    "electron/__tests__/duckdb-session.test.ts",
+    "electron/vitest.config.ts"
+  ],
+  "assertions": [
+    "Test file is created in electron/__tests__/ directory matching the backend test pattern",
+    "All three functions (get_short_interest, get_short_volume, get_float) have at least one test each",
+    "External API calls are mocked — the actual Massive/Polygon HTTP endpoints are not called",
+    "Tests import domain service functions directly (not going through HTTP or IPC layers)",
+    "At least one test covers an error case (e.g., invalid ticker, API returning empty data)"
+  ]
+}

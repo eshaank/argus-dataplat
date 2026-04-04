@@ -1,0 +1,16 @@
+{
+  "name": "edge-case",
+  "task": "Create a domain for cryptocurrency spot prices. Note: this is NOT from the Massive/Polygon API — it uses CoinGecko's free API (https://api.coingecko.com/api/v3/). No API key required.",
+  "context_files": [
+    ".claude/skills/domain-builder/SKILL.md",
+    ".rules/architecture.md",
+    ".rules/base-overrides.md"
+  ],
+  "assertions": [
+    "The client file does NOT validate or require MASSIVE_API_KEY since CoinGecko's free API needs no key",
+    "The client file still includes caching (TTL cache or similar) despite using a different API source",
+    "The client file still uses retry logic or the shared HTTP client for resilience",
+    "The domain folder is named something specific like 'crypto' or 'crypto_pricing' — not 'external' or 'misc'",
+    "The tool registry entry description distinguishes this from the existing 'pricing' domain (e.g., specifies cryptocurrency or digital assets)"
+  ]
+}

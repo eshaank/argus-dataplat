@@ -1,0 +1,15 @@
+{
+  "name": "happy-path-variant-b",
+  "task": "Create a sortable data table widget for displaying financial statement line items (e.g., rows of revenue, COGS, gross profit across multiple quarters). Columns should be sortable on click.",
+  "context_files": [
+    ".claude/skills/widget-builder/SKILL.md",
+    "project-docs/argus-style-guide.md"
+  ],
+  "assertions": [
+    "Table header cells use 11px font size with uppercase text-transform and letter-spacing between 0.04em and 0.06em",
+    "The component uses the interactions.sort property from the WidgetPayload to determine if sorting is enabled",
+    "Data cells containing numbers use var(--font-mono) or a JetBrains Mono font-family declaration",
+    "The widget background uses var(--bg-secondary) or the equivalent surface color CSS variable (#111318)",
+    "Response includes registration of the new widget type in the widget type-to-component map or explicitly notes where to add it"
+  ]
+}
