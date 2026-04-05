@@ -10,6 +10,7 @@ interface RawUniverseRow {
   name: string;
   type: string;
   exchange: string;
+  mic_code: string | null;
   sector: string | null;
   sic_code: string | null;
   market_cap: number | null;
@@ -30,6 +31,7 @@ function mapRow(r: RawUniverseRow): UniverseEntry {
     name: r.name,
     type: r.type,
     exchange: r.exchange,
+    micCode: r.mic_code,
     sector: r.sector,
     sicCode: r.sic_code,
     marketCap: r.market_cap,
@@ -62,7 +64,7 @@ export async function getUniverse(
 
   const sql = `
     SELECT
-      ticker, name, type, exchange, sector, sic_code, market_cap,
+      ticker, name, type, exchange, mic_code, sector, sic_code, market_cap,
       active, description, homepage_url, total_employees,
       toString(list_date) AS list_date, cik, sic_description,
       address_city, address_state
@@ -84,7 +86,7 @@ export async function searchTickers(
 
   const sql = `
     SELECT
-      ticker, name, type, exchange, sector, sic_code, market_cap,
+      ticker, name, type, exchange, mic_code, sector, sic_code, market_cap,
       active, description, homepage_url, total_employees,
       toString(list_date) AS list_date, cik, sic_description,
       address_city, address_state
@@ -108,7 +110,7 @@ export async function getTicker(
 ): Promise<UniverseEntry | null> {
   const sql = `
     SELECT
-      ticker, name, type, exchange, sector, sic_code, market_cap,
+      ticker, name, type, exchange, mic_code, sector, sic_code, market_cap,
       active, description, homepage_url, total_employees,
       toString(list_date) AS list_date, cik, sic_description,
       address_city, address_state

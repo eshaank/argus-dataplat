@@ -155,6 +155,7 @@ export interface UniverseEntry {
   name: string;
   type: string;
   exchange: string;
+  micCode: string | null;
   sector: string | null;
   sicCode: string | null;
   marketCap: number | null;
