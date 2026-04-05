@@ -1,6 +1,7 @@
 """CLI entry point: python -m dataplat.cli.backfill_fundamentals
 
-Backfills company fundamentals + economy data from Polygon.
+Backfills dividends, splits, and universe details from Polygon.
+Economy data is handled by backfill_economy (FRED).
 """
 
 from __future__ import annotations
@@ -34,8 +35,7 @@ def _load_universe(name: str) -> list[str]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Backfill fundamentals & economy data from Polygon")
-    parser.add_argument("--economy", action="store_true", help="Backfill economy data (treasury yields, inflation, labor market)")
+    parser = argparse.ArgumentParser(description="Backfill dividends, splits, universe details from Polygon")
 
     ticker_group = parser.add_mutually_exclusive_group()
     ticker_group.add_argument("--tickers", type=str, help="Comma-separated ticker symbols")
@@ -51,12 +51,7 @@ def main() -> None:
         datefmt="%H:%M:%S",
     )
 
-    # Economy backfill
-    if args.economy:
-        from dataplat.ingestion.polygon.economy import run_economy_backfill
-        run_economy_backfill()
-
-    # Company fundamentals
+    # Dividends, splits, universe enrichment
     tickers: list[str] = []
     if args.tickers:
         tickers = [t.strip().upper() for t in args.tickers.split(",") if t.strip()]
@@ -68,8 +63,8 @@ def main() -> None:
     if tickers:
         from dataplat.ingestion.polygon.fundamentals import run_fundamentals_backfill
         run_fundamentals_backfill(tickers=tickers)
-    elif not args.economy:
-        logging.error("Specify --economy, --tickers, --universe, or --file")
+    else:
+        logging.error("Specify --tickers, --universe, or --file")
         sys.exit(1)
 
 

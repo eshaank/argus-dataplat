@@ -37,14 +37,22 @@ backfill *ARGS:
 fetch-universe:
     uv run python src/dataplat/ingestion/polygon/universes/fetch_all.py
 
-# Backfill fundamentals + economy data from Polygon
+# Backfill dividends, splits, universe details from Polygon
 # Examples:
-#   just backfill-fundamentals --economy
 #   just backfill-fundamentals --universe spy
-#   just backfill-fundamentals --universe spy --economy
+#   just backfill-fundamentals --universe all
 #   just backfill-fundamentals --tickers AAPL,MSFT
 backfill-fundamentals *ARGS:
     uv run python -m dataplat.cli.backfill_fundamentals {{ARGS}}
+
+# Backfill economic indicators from FRED (treasury yields, inflation, rates, macro)
+# Examples:
+#   just backfill-economy                     # All 8 tables (~45 FRED series)
+#   just backfill-economy --table rates        # Single table
+#   just backfill-economy --table macro_daily --table macro_weekly
+#   just backfill-economy --list               # Show available tables + series
+backfill-economy *ARGS:
+    uv run python -m dataplat.cli.backfill_economy {{ARGS}}
 
 # Migrate local ClickHouse → cloud ClickHouse
 # Examples:
