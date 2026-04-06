@@ -113,6 +113,7 @@ FROM latest l
 JOIN yr y ON l.ticker = y.ticker;
 
 -- Dividend changes (YoY)
+DROP VIEW IF EXISTS v_dividend_changes;
 CREATE VIEW IF NOT EXISTS v_dividend_changes AS
 WITH ranked AS (
     SELECT ticker, cash_amount, ex_dividend_date,
@@ -120,7 +121,7 @@ WITH ranked AS (
     FROM dividends
     WHERE ex_dividend_date >= today() - 365
 )
-SELECT r1.ticker,
+SELECT r1.ticker AS ticker,
        coalesce(u.name, '') as name,
        r2.cash_amount as prev_amount,
        r1.cash_amount as latest_amount,
