@@ -84,6 +84,17 @@ backfill-options *ARGS:
 backfill-edgar *ARGS:
     uv run python -m dataplat.cli.backfill_edgar {{ARGS}}
 
+# ── Algo: Feature Engineering ──────────────────────────────────────
+
+# Compute daily algo features → ClickHouse
+# Examples:
+#   just compute-features --start 2023-01-01 --end 2024-12-31
+#   just compute-features --today
+#   just compute-features --today --dry-run
+#   just compute-features --list
+compute-features *ARGS:
+    uv run python -m dataplat.cli.compute_features {{ARGS}}
+
 # Run tests
 test:
     uv run pytest tests/ -v
