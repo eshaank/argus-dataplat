@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# ─────────────────────────────────────────────────────────────
+# pre-commit hook: block secrets from being committed
+# ─────────────────────────────────────────────────────────────
+# Scans staged file diffs for ClickHouse Cloud credentials,
+# API keys, and other sensitive patterns.
+#
+# Setup (one-time, per clone):
+#   git config core.hooksPath .githooks
+# ─────────────────────────────────────────────────────────────
+
+set -euo pipefail
+
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+# Patterns to block (extended grep, case-insensitive where needed)
+# Each entry: "REGEX|||DESCRIPTION"
+PATTERNS=(
+  # ClickHouse Cloud hostnames (*.clickhouse.cloud)
+  '[a-z0-9]+\.([a-z0-9-]+\.)?clickhouse\.cloud|||ClickHouse Cloud hostname'
+
+  # ClickHouse Cloud port 8443 with a real host (not placeholder)
+  'CLICKHOUSE_PORT=8443|||ClickHouse Cloud port (8443) — are you targeting prod?'
+
+  # High-entropy passwords assigned to CLICKHOUSE_PASSWORD (not placeholder/empty/example)
+  'CLICKHOUSE_PASSWORD=[A-Za-z0-9_!@#$%^&*]{8,}|||ClickHouse password (non-placeholder)'
+
+  # Generic cloud DB connection strings
+  'clickhouse(\+native)?://[^@]+@[^/]+\.cloud|||ClickHouse Cloud connection URI'
+
+  # AWS / GCP / Azure secrets (common patterns)
+  'AKIA[0-9A-Z]{16}|||AWS Access Key ID'
+  'AIza[0-9A-Za-z_-]{35}|||Google API Key'
+
+  # Generic high-value env var patterns
+  '(API_KEY|API_SECRET|APP_SECRET|AUTH_TOKEN|SECRET_KEY)=[A-Za-z0-9_/+=\-]{12,}|||Potential secret in env var'
+)
+
+BLOCKED=0
+ISSUES=""
+
+# Only scan staged content (what's about to be committed)
+DIFF=$(git diff --cached --diff-filter=ACMR -U0 -- . ':!.githooks/' ':!*.lock' ':!*.png' ':!*.jpg' ':!*.ico')
+
+for entry in "${PATTERNS[@]}"; do
+  REGEX="${entry%%|||*}"
+  DESC="${entry##*|||}"
+
+  # Search the added lines only (lines starting with +, excluding +++ header)
+  MATCHES=$(echo "$DIFF" | grep -E '^\+[^+]' | grep -iE "$REGEX" || true)
+
+  if [[ -n "$MATCHES" ]]; then
+    BLOCKED=1
+    ISSUES+="${RED}✗ ${DESC}${NC}\n"
+    ISSUES+="  Pattern: ${REGEX}\n"
+    while IFS= read -r line; do
+      # Truncate to avoid printing full secrets
+      TRUNCATED="${line:0:80}"
+      ISSUES+="  ${YELLOW}${TRUNCATED}${NC}\n"
+    done <<< "$MATCHES"
+    ISSUES+="\n"
+  fi
+done
+
+if [[ "$BLOCKED" -eq 1 ]]; then
+  echo ""
+  echo -e "${RED}╔══════════════════════════════════════════════════════╗${NC}"
+  echo -e "${RED}║  🚫  COMMIT BLOCKED — potential secrets detected    ║${NC}"
+  echo -e "${RED}╚══════════════════════════════════════════════════════╝${NC}"
+  echo ""
+  echo -e "$ISSUES"
+  echo -e "If this is a false positive (e.g. a placeholder/example), either:"
+  echo -e "  1. Use an obviously fake value (e.g. ${YELLOW}your_password_here${NC})"
+  echo -e "  2. Bypass once with: ${YELLOW}git commit --no-verify${NC}"
+  echo ""
+  exit 1
+fi

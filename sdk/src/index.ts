@@ -140,7 +140,48 @@ export type {
   OIWallPoint,
 } from './queries/derivatives.js';
 
-// ── Queries: Raw SQL ────────────────────────────────────────────────
+// ── Queries: Signals ────────────────────────────────────────────────
+export {
+  getMarketBreadth,
+  get52WeekHighLowCounts,
+  get52WeekHighs,
+  get52WeekLows,
+  getDividendChanges,
+  getNotableInsiderBuys,
+  getUpcomingDividends,
+} from './queries/signals.js';
+
+export type {
+  MarketBreadth,
+  HighLowCounts,
+  HighLowTicker,
+  DividendChange,
+  NotableInsiderBuy,
+  UpcomingDividend,
+} from './queries/signals.js';
+
+// ── Queries: SEC ────────────────────────────────────────────────────
+export {
+  getInsiderTrades,
+  getInsiderMonthly,
+  getInstitutionalHolders,
+  getMaterialEvents,
+  getSecFilings,
+  getDilutionSnapshot,
+  getDilutionTimeSeries,
+} from './queries/sec.js';
+
+export type {
+  InsiderTrade,
+  InsiderMonthly,
+  InstitutionalHolder,
+  MaterialEvent,
+  SecFiling,
+  DilutionSnapshot,
+  DilutionTimeSeriesPoint,
+} from './queries/sec.js';
+
+// ── Queries: Raw SQL (ad-hoc exploration only) ──────────────────────
 export { rawQuery, getSchema } from './queries/sql.js';
 
 // ── Utils ───────────────────────────────────────────────────────────

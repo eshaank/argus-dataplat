@@ -21,7 +21,7 @@ function tableForInterval(interval: OHLCVInterval): { table: string; timeCol: st
 
 /** Volume column name differs between base table and MVs. */
 function volumeCol(interval: OHLCVInterval): string {
-  return interval === '1m' ? 'volume' : 'total_volume';
+  return interval === '1m' ? 'toFloat64(volume)' : 'toFloat64(total_volume)';
 }
 
 function escTicker(t: string): string {
@@ -141,7 +141,7 @@ export async function getLatestPrices(
         ticker,
         day AS date,
         close,
-        total_volume AS volume,
+        toFloat64(total_volume) AS volume,
         row_number() OVER (PARTITION BY ticker ORDER BY day DESC) AS rn
       FROM ohlcv_daily_mv
       WHERE ticker IN (${tickerList(tickers)})

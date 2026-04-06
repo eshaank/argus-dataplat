@@ -6,9 +6,9 @@ description: >
   queries, backfill CLI, and the future MCP server interface. Use this skill whenever
   working on: the argus-dataplat/ directory, ClickHouse schema or queries, Schwab API
   ingestion (schwabdev), OHLCV/options/universe/fundamentals/economic data pipelines,
-  Polars DataFrames, Kafka producers/consumers, the MCP server, or any Python code in
-  the data platform. Also trigger when discussing data source boundaries (Schwab vs
-  Polygon), backfill operations, or dataplat architecture.
+  SEC EDGAR ingestion, Polars DataFrames, Kafka producers/consumers, the MCP server,
+  or any Python code in the data platform. Also trigger when discussing data source
+  boundaries (Schwab vs Polygon vs EDGAR), backfill operations, or dataplat architecture.
 ---
 
 # DataPlat Skill
@@ -25,8 +25,9 @@ All dataplat code lives in `argus-dataplat/` at the project root — a **separat
 
 Read these before making changes:
 
-- **`argus-dataplat/VISION.md`** — Full architecture: ClickHouse vs DuckDB decision, two-repo design, schema, Kafka topics, MCP tools, migration path
-- **`argus-dataplat/BUILD_PLAN.md`** — Concrete implementation plan: project scaffolding, build order, phase sequencing, open questions
+- **`argus-dataplat/docs/VISION.md`** — Full architecture: ClickHouse vs DuckDB decision, two-repo design, schema, Kafka topics, MCP tools, migration path
+- **`argus-dataplat/docs/BUILD_PLAN.md`** — Concrete implementation plan: project scaffolding, build order, phase sequencing, open questions
+- **`argus-dataplat/docs/SEC_EDGAR_PLAN.md`** — SEC EDGAR pipeline: 5 tables, dilution tracking, insider trades, institutional holders
 
 ## Hard Rules
 
@@ -34,10 +35,11 @@ Read these before making changes:
 
 | Provider | Owns | Never Used For |
 |----------|------|----------------|
-| **Schwab** | ALL ticker-level data going forward: OHLCV, quotes, streaming, options, fundamentals (quote-level) | — |
-| **Polygon** | Reference/metadata + ONE-OFF 1-min backfill (4yr, tagged `source='polygon_backfill'`), universe, SIC codes, sectors, news, corporate actions, alt data | Ongoing price data. The backfill is a one-time bootstrap only. |
-| **FRED** | Economic indicators | — |
-| **SEC EDGAR** | Full financial statements (income, balance, cashflow) | — |
+| **Schwab** | ALL ongoing ticker-level data: OHLCV, quotes, streaming, options | — |
+| **Polygon** | Reference/metadata, universe details, SIC codes, sectors, dividends, splits, news + ONE-OFF 1-min backfill (tagged `source='polygon_backfill'`) | Ongoing price data. The backfill is a one-time bootstrap only. |
+| **SEC EDGAR** | Canonical financials (income, balance, cashflow), dilution tracking, insider trades, institutional holders, all SEC filing metadata | — |
+| **FRED** | Economic indicators (treasury yields, inflation, labor market) | — |
+| **ThetaData** | Historical options backfill (8yr, one-time) | Ongoing options data |
 
 ### Schema Safety (NO EXCEPTIONS)
 
@@ -62,6 +64,13 @@ argus-dataplat/
 ├── pyproject.toml
 ├── docker-compose.yml              # ClickHouse (+ Redpanda later)
 ├── justfile                        # Task runner
+├── docs/                           # Architecture & plan docs
+│   ├── VISION.md
+│   ├── BUILD_PLAN.md
+│   ├── SEC_EDGAR_PLAN.md
+│   ├── OPTIONS_BACKFILL_PLAN.md
+│   ├── FUNDAMENTALS_PLAN.md
+│   └── ARGUS_MIGRATION.md
 ├── sdk/                            # TypeScript SDK (consumed by Argus Electron app)
 │   ├── package.json
 │   ├── tsconfig.json
@@ -75,9 +84,9 @@ argus-dataplat/
 │   └── dataplat/
 │       ├── config.py               # pydantic-settings env loading
 │       ├── db/
-│       │   ├── client.py           # ClickHouse client factory
-│       │   ├── migrate.py          # Migration runner
-│       │   └── migrations/         # Numbered .sql files
+│       │   ├── client.py           # ClickHouse client factory (auto-detects cloud)
+│       │   ├── migrate.py          # Migration runner + ensure_schema()
+│       │   └── migrations/         # Numbered .sql files (001-020+)
 │       ├── ingestion/
 │       │   ├── base.py             # Abstract IngestPipeline
 │       │   ├── schwab/             # Schwab API pipelines
@@ -85,14 +94,35 @@ argus-dataplat/
 │       │   │   ├── historical.py   # price_history → ohlcv
 │       │   │   ├── quotes.py       # Realtime quotes
 │       │   │   └── options.py      # Option chains
-│       │   ├── polygon/
-│       │   │   └── reference.py    # Universe/metadata ONLY
+│       │   ├── polygon/            # Polygon pipelines
+│       │   │   ├── backfill_1min.py # One-time 1-min OHLCV backfill
+│       │   │   ├── fundamentals.py # Dividends, splits, universe enrichment
+│       │   │   ├── economy.py      # Treasury, inflation, labor market
+│       │   │   └── universes/      # Ticker list files (spy.txt, qqq.txt, all.txt)
+│       │   ├── edgar/              # SEC EDGAR pipelines
+│       │   │   ├── client.py       # HTTP client (rate limiter, retry, User-Agent)
+│       │   │   ├── cik_map.py      # Ticker → CIK resolution (cached)
+│       │   │   ├── concepts.py     # GAAP concept map (~65 line items + fallbacks)
+│       │   │   ├── financials.py   # companyfacts → financials table
+│       │   │   ├── filings.py      # submissions → sec_filings + material_events
+│       │   │   ├── insider.py      # Form 4 XML → insider_trades
+│       │   │   └── institutional.py # SC 13G/13D → institutional_holders
+│       │   ├── thetadata/          # ThetaData historical options backfill
+│       │   │   ├── client.py       # ThetaTerminal v3 REST client
+│       │   │   ├── options.py      # Options backfill pipeline
+│       │   │   └── transforms.py   # Polars transforms for option chains
 │       │   └── fred/
 │       │       └── series.py       # Economic indicators
 │       ├── transforms/             # Polars transform + validation
 │       └── cli/                    # CLI entry points
+│           ├── backfill.py         # OHLCV backfill (Schwab + Polygon)
+│           ├── backfill_fundamentals.py  # Polygon fundamentals + economy
+│           ├── backfill_edgar.py   # SEC EDGAR (all 5 tables)
+│           ├── backfill_options.py # ThetaData options backfill
+│           ├── migrate.py          # Run migrations
+│           └── migrate_to_cloud.py # Local → cloud migration
 ├── tests/
-└── scripts/
+└── queries/                        # Ad-hoc SQL queries
 ```
 
 ## ClickHouse Schema
@@ -107,9 +137,55 @@ Core tables (see `db/migrations/` for DDL):
 | `ohlcv_1h_mv` | Materialized View | toYear(bucket) | (ticker, bucket) | auto from ohlcv |
 | `ohlcv_daily_mv` | Materialized View | toYear(day) | (ticker, day) | auto from ohlcv |
 | `universe` | ReplacingMergeTree(updated_at) | — | ticker | Polygon reference |
-| `economic_series` | ReplacingMergeTree(ingested_at) | toYear(date) | (series_id, date) | FRED |
-| `fundamentals` | ReplacingMergeTree(ingested_at) | toYear(period_end) | (ticker, period_end, report_type) | SEC EDGAR |
-| `option_chains` | ReplacingMergeTree(ingested_at) | toYYYYMM(expiration) | (underlying, expiration, strike, put_call, snapshot_at) | Schwab |
+| `financials` | ReplacingMergeTree(ingested_at) | toYear(period_end) | (ticker, period_end, fiscal_period) | **SEC EDGAR** (replaced Polygon) |
+| `sec_filings` | ReplacingMergeTree(ingested_at) | toYear(filed_date) | (ticker, filed_date, form_type, accession_number) | SEC EDGAR |
+| `material_events` | ReplacingMergeTree(ingested_at) | toYear(filed_date) | (ticker, filed_date, item_code, accession_number) | SEC EDGAR |
+| `insider_trades` | ReplacingMergeTree(ingested_at) | toYear(report_date) | (ticker, report_date, reporter_name, transaction_code, shares) | SEC EDGAR Form 4 |
+| `institutional_holders` | ReplacingMergeTree(ingested_at) | toYear(filed_date) | (ticker, filed_date, holder_name, accession_number) | SEC EDGAR SC 13G/13D |
+| `option_chains` | ReplacingMergeTree(ingested_at) | toYYYYMM(expiration) | (underlying, expiration, strike, put_call, snapshot_at) | ThetaData + Schwab |
+| `dividends` | ReplacingMergeTree(ingested_at) | — | (ticker, ex_dividend_date) | Polygon |
+| `stock_splits` | ReplacingMergeTree(ingested_at) | — | (ticker, execution_date) | Polygon |
+| `treasury_yields` | ReplacingMergeTree(ingested_at) | toYear(date) | (date) | FRED via Polygon |
+| `inflation` | ReplacingMergeTree(ingested_at) | toYear(date) | (date) | FRED via Polygon |
+| `inflation_expectations` | ReplacingMergeTree(ingested_at) | toYear(date) | (date) | FRED via Polygon |
+| `labor_market` | ReplacingMergeTree(ingested_at) | toYear(date) | (date) | FRED via Polygon |
+
+### Convenience Views (migration 020)
+
+| View | Purpose |
+|------|---------|
+| `v_dilution_snapshot` | Full dilution picture per company per year — authorized headroom, warrants, convertibles, options, SBC %, total dilution % |
+| `v_latest_financials` | Most recent annual filing per ticker |
+| `v_filings_10k` | Annual reports (10-K, 20-F) |
+| `v_filings_10q` | Quarterly reports (10-Q) |
+| `v_filings_8k` | Material events (8-K) |
+| `v_filings_insider` | Form 3/4/5 insider filings |
+| `v_filings_institutional` | SC 13G/13D institutional filings |
+| `v_filings_registration` | S-1, S-3, S-8 shelf registrations |
+| `v_filings_prospectus` | 424B prospectus supplements |
+| `v_insider_buys_sells` | Open market P/S only (filters exercises, tax, gifts) |
+| `v_insider_monthly` | Net insider buying aggregated per ticker per month |
+| `v_events_timeline` | Human-readable 8-K event feed |
+| `v_institutional_latest` | Latest filing per holder per ticker |
+
+## Key Commands
+
+```bash
+just migrate                                    # Run pending ClickHouse migrations
+just fetch-universe                             # Polygon → universes/all.txt
+just backfill-fundamentals --universe all        # Polygon: dividends + splits + universe details
+just backfill --source schwab --universe spy      # Schwab daily OHLCV
+just backfill --source polygon --universe all     # Polygon 1-min OHLCV (one-time)
+just backfill-edgar --all --universe all          # SEC EDGAR: financials + filings + insider + institutional
+just backfill-edgar --financials --gaps-only      # Fill only tickers missing from financials
+just backfill-edgar --insider --universe spy      # Insider trades only
+just backfill-options --universe sp100            # ThetaData options backfill
+just backfill-fundamentals --economy              # FRED economic indicators
+just test                                        # Run test suite
+just ch-shell                                    # ClickHouse shell (auto-detects cloud/local)
+just ch-stats                                    # Table row counts + sizes
+just options-status                              # Options table audit
+```
 
 ## Key Patterns
 
@@ -126,8 +202,6 @@ class IngestPipeline(ABC):
         return self.load(df)
 ```
 
-When Kafka is added: extract() → produce_to_kafka() ... consume_from_kafka() → transform() → load(). The transform and load functions don't change.
-
 ### ClickHouse Insert (Polars → Arrow)
 
 ```python
@@ -140,7 +214,17 @@ ch_client.insert_df("ohlcv", df.to_pandas())
 
 ### Rate Limiting
 
-Schwab: 120 requests/min max. Backfill uses 500ms delay between calls (~120 req/min).
+- Schwab: 120 req/min. Backfill uses 500ms delay.
+- Polygon: paid tier ~300 req/min. Backfill uses exponential backoff on 429.
+- SEC EDGAR: 10 req/sec. Pipeline uses 100ms delay + exponential backoff.
+
+### Filing URLs
+
+Every SEC table stores `cik`, `accession_number`, and `primary_doc`. Construct links:
+```
+Index: https://www.sec.gov/Archives/edgar/data/{cik}/{accession_nodash}/
+Doc:   https://www.sec.gov/Archives/edgar/data/{cik}/{accession_nodash}/{primary_doc}
+```
 
 ## TypeScript SDK (`argus-dataplat/sdk/`)
 
@@ -162,42 +246,29 @@ argus-dataplat/sdk/
     │   ├── universe.ts       # getUniverse, searchTickers, getTicker, getSectors, getTickersBySector
     │   ├── dividends.ts      # getDividends, getDividendCalendar
     │   ├── splits.ts         # getSplits
-    │   ├── macro.ts          # getTreasuryYields, getYieldCurve, getYieldCurveTimeSeries, getInflation, getLaborMarket, getInflationExpectations
-    │   ├── options.ts        # getOptionChain, getExpirations, getIVSurface, getIVSkew, getGreeksSnapshot, getIVHistory, getOpenInterestProfile, getVolumeProfile
+    │   ├── macro.ts          # getTreasuryYields, getYieldCurve, getInflation, getLaborMarket
+    │   ├── options.ts        # getOptionChain, getExpirations, getIVSurface, getGreeksSnapshot
     │   └── sql.ts            # rawQuery, getSchema
     └── utils/
         ├── formatting.ts     # formatCurrency, formatLargeNumber, formatPercent, formatDate
-        └── transforms.ts     # normalizeToBase100, computeSMA, computeEMA, computeYoYGrowth, computeMargins
+        └── transforms.ts     # normalizeToBase100, computeSMA, computeEMA, computeYoYGrowth
 ```
 
 ### Key Rules
 
 - **All SQL lives in the SDK query modules.** The Electron app and React frontend never write SQL directly.
-- **The SDK maps interval → correct MV automatically:** `1m` → `ohlcv`, `5m` → `ohlcv_5min_mv`, `15m` → `ohlcv_15min_mv`, `1h` → `ohlcv_1h_mv`, `1d` → `ohlcv_daily_mv`.
-- **Read-only enforced in `client.ts`:** only SELECT/WITH/EXPLAIN allowed. Mutation keywords are blocked.
-- **Snake_case from ClickHouse is mapped to camelCase TypeScript interfaces** in each query module's `mapRow()` function.
+- **Read-only enforced in `client.ts`:** only SELECT/WITH/EXPLAIN allowed.
 - **The SDK is consumed by the Electron app via `file:` dependency:** `"@dataplat/sdk": "file:../argus-dataplat/sdk"`.
-- **Build with:** `cd argus-dataplat/sdk && npx tsc`
-- **Future MCP:** Each query module maps 1:1 to a future MCP tool. The SDK is the shared implementation; MCP wraps it.
-
-### SDK → MCP Mapping
-
-| SDK Module | Future MCP Tool |
-|-----------|----------------|
-| `queries/ohlcv.ts` | `query_market_data` |
-| `queries/financials.ts` | `query_financials` |
-| `queries/universe.ts` | `query_universe` |
-| `queries/macro.ts` | `query_economics` |
-| `queries/dividends.ts` + `queries/splits.ts` | `query_corporate_actions` |
-| `queries/options.ts` | `query_options` |
-| `queries/sql.ts` | `run_sql` |
+- **Future MCP:** Each query module maps 1:1 to a future MCP tool.
 
 ## Relationship to Other Skills
 
 | Skill | Relationship |
 |-------|-------------|
-| **duckdb-data-layer** | DuckDB is the Argus *edge cache* (per-conversation). DataPlat/ClickHouse is the *central analytical store*. Different repos, different purposes. |
+| **sec-edgar** | SEC EDGAR pipeline details — concepts, Form 4 parsing, 13G parsing, dilution tracking. Load for EDGAR-specific work. |
+| **thetadata** | ThetaData historical options backfill. Load for options-specific work. |
+| **duckdb-data-layer** | DuckDB is the Argus *edge cache* (per-conversation). DataPlat/ClickHouse is the *central analytical store*. |
 | **massive-api** | Polygon/Massive is used in DataPlat ONLY for reference metadata (universe, sectors, SIC). Never for price/ticker data. |
 | **chat-orchestration** | Future: DataPlat exposes MCP tools that the chat LLM calls. Not wired yet. |
 | **domain-builder** | Argus tRPC domains (TypeScript). Some will be replaced by DataPlat MCP tools over time. |
-| **electron-development** | The `argus/` Electron app imports `@dataplat/sdk` and exposes it to the renderer via IPC. See `argus/electron/ipc-handlers.ts`. |
+| **electron-development** | The `argus/` Electron app imports `@dataplat/sdk` and exposes it to the renderer via IPC. |
