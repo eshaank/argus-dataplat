@@ -181,6 +181,35 @@ export type {
   DilutionTimeSeriesPoint,
 } from './queries/sec.js';
 
+// ── Queries: Commodities & Energy ───────────────────────────────────
+export {
+  getEnergySpotPrices,
+  getEnergySpotLatest,
+  getCommodityOHLCV,
+  getCommodityOHLCVMulti,
+  getCommodityLatest,
+  getCommodityReturns,
+  getCommodityTickers,
+  getBrentWTISpread,
+  getPetroleumWeekly,
+  getPetroleumStocksVs5Yr,
+  getOPECShare,
+  getPersianGulfDependency,
+} from './queries/commodities.js';
+
+export type {
+  EnergySpotPrice,
+  EnergySpotLatest,
+  CommodityOHLCV,
+  CommodityLatest,
+  CommodityReturn,
+  BrentWTISpread,
+  PetroleumWeekly,
+  PetroleumStocksVs5Yr,
+  OPECShare,
+  PersianGulfDependency,
+} from './queries/commodities.js';
+
 // ── Queries: Raw SQL (ad-hoc exploration only) ──────────────────────
 export { rawQuery, getSchema } from './queries/sql.js';
 

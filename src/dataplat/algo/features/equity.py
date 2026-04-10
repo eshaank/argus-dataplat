@@ -36,11 +36,11 @@ class EquityFeatures(FeatureModule):
         # Pull last 30 trading days of SPY daily bars for all computations
         bars = self._query(
             """
-            SELECT date, open, high, low, close, volume
+            SELECT day, open, high, low, close, total_volume
             FROM ohlcv_daily_mv
             WHERE ticker = 'SPY'
-              AND date BETWEEN {start:Date} AND {end:Date}
-            ORDER BY date
+              AND day BETWEEN {start:Date} AND {end:Date}
+            ORDER BY day
             """,
             {"start": target_date - timedelta(days=45), "end": target_date},
         )
@@ -49,7 +49,7 @@ class EquityFeatures(FeatureModule):
             return FeatureRow(features={k: NAN for k in self.feature_names}, stale=self.feature_names)
 
         # Check if we actually have data for target_date
-        latest_date = bars[-1]["date"]
+        latest_date = bars[-1]["day"]
         if hasattr(latest_date, "date"):
             latest_date = latest_date.date() if callable(latest_date.date) else latest_date
         if isinstance(latest_date, date) and (target_date - latest_date).days > self.staleness_threshold_days:

@@ -299,15 +299,15 @@ class FeaturePipeline:
         """Get dates where SPY traded (proxy for US market calendar)."""
         rows = self._query(
             """
-            SELECT DISTINCT date
+            SELECT DISTINCT day
             FROM ohlcv_daily_mv
             WHERE ticker = 'SPY'
-              AND date BETWEEN {start:Date} AND {end:Date}
-            ORDER BY date
+              AND day BETWEEN {start:Date} AND {end:Date}
+            ORDER BY day
             """,
             {"start": start, "end": end},
         )
-        return [r["date"] for r in rows]
+        return [r["day"] for r in rows]
 
     def _load_historical_features(self, before_date: date, lookback_days: int) -> pl.DataFrame | None:
         """Load existing feature rows from ClickHouse for PCA fitting."""

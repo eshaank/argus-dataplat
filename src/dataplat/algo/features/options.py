@@ -257,12 +257,12 @@ class OptionsFeatures(FeatureModule):
             SELECT stddevPop(ret) * sqrt(252) AS rv_20d
             FROM (
                 SELECT
-                    (close - lagInFrame(close) OVER (ORDER BY date))
-                    / lagInFrame(close) OVER (ORDER BY date) AS ret
+                    (close - lagInFrame(close) OVER (ORDER BY day))
+                    / lagInFrame(close) OVER (ORDER BY day) AS ret
                 FROM ohlcv_daily_mv
                 WHERE ticker = 'SPY'
-                  AND date BETWEEN {start:Date} AND {end:Date}
-                ORDER BY date
+                  AND day BETWEEN {start:Date} AND {end:Date}
+                ORDER BY day
             )
             WHERE ret IS NOT NULL
             """,

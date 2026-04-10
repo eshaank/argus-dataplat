@@ -38,11 +38,11 @@ class CrossAssetFeatures(FeatureModule):
         lookback_start = target_date - timedelta(days=CORR_WINDOW + 15)  # extra buffer for non-trading days
         rows = self._query(
             """
-            SELECT ticker, date, close
+            SELECT ticker, day, close
             FROM ohlcv_daily_mv
             WHERE ticker IN {tickers:Array(String)}
-              AND date BETWEEN {start:Date} AND {end:Date}
-            ORDER BY ticker, date
+              AND day BETWEEN {start:Date} AND {end:Date}
+            ORDER BY ticker, day
             """,
             {
                 "tickers": CROSS_ASSETS,
@@ -56,7 +56,7 @@ class CrossAssetFeatures(FeatureModule):
         for r in rows:
             t = r["ticker"]
             if t in by_ticker and r["close"]:
-                by_ticker[t].append((r["date"], float(r["close"])))
+                by_ticker[t].append((r["day"], float(r["close"])))
 
         features: dict[str, float] = {}
 

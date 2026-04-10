@@ -44,19 +44,24 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Backfill OHLCV data into ClickHouse")
     parser.add_argument(
         "--source",
-        choices=["polygon", "schwab"],
+        choices=["polygon", "polygon-daily", "schwab"],
         required=True,
-        help="Data source: 'polygon' for 1-min backfill, 'schwab' for daily",
+        help="Data source: 'polygon' for 1-min, 'polygon-daily' for daily grouped, 'schwab' for daily",
     )
 
-    ticker_group = parser.add_mutually_exclusive_group(required=True)
+    ticker_group = parser.add_mutually_exclusive_group(required=("polygon-daily" not in sys.argv))
     ticker_group.add_argument("--tickers", type=str, help="Comma-separated ticker symbols")
     ticker_group.add_argument("--file", type=str, help="Path to file with one ticker per line")
     ticker_group.add_argument(
         "--universe",
         type=str,
         metavar="NAME",
-        help="Predefined universe: spy (S&P 500), qqq (Nasdaq-100), all (fetches from Polygon)",
+        help="Predefined universe: spy, qqq, nyse, all",
+    )
+    ticker_group.add_argument(
+        "--all-tickers",
+        action="store_true",
+        help="Fetch all tickers (polygon-daily only, no filter)",
     )
 
     parser.add_argument("--months", type=int, default=48, help="Months of history (polygon, default 48)")
@@ -71,7 +76,32 @@ def main() -> None:
         datefmt="%H:%M:%S",
     )
 
-    # Resolve ticker list
+    # polygon-daily can run without a ticker list (fetches all tickers per day)
+    if args.source == "polygon-daily":
+        from dataplat.ingestion.polygon.backfill_daily import run_polygon_daily_backfill
+
+        ticker_filter: set[str] | None = None
+        if args.tickers:
+            ticker_filter = {t.strip().upper() for t in args.tickers.split(",") if t.strip()}
+        elif args.file:
+            ticker_filter = {line.strip().upper() for line in Path(args.file).read_text().splitlines() if line.strip()}
+        elif args.universe:
+            ticker_filter = set(_load_universe(args.universe.lower()))
+        # --all-tickers or no filter → ticker_filter stays None → all tickers
+
+        if ticker_filter:
+            logging.info("Backfilling daily OHLCV for %d tickers via Polygon grouped", len(ticker_filter))
+        else:
+            logging.info("Backfilling daily OHLCV for ALL tickers via Polygon grouped")
+
+        run_polygon_daily_backfill(
+            months=args.months,
+            ticker_filter=ticker_filter,
+            concurrency=args.concurrency,
+        )
+        return
+
+    # Resolve ticker list for polygon 1-min and schwab
     tickers: list[str] = []
     if args.tickers:
         tickers = [t.strip().upper() for t in args.tickers.split(",") if t.strip()]
