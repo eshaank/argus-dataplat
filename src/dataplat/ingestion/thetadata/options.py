@@ -13,7 +13,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import httpx
 import polars as pl
@@ -205,13 +205,19 @@ async def _run_async(
     concurrency: int = 4,
     resume: bool = False,
     dry_run: bool = False,
-    years: int = 8,
+    years: int | None = None,
+    days: int | None = None,
 ) -> None:
     """Async entry point for the options backfill."""
     ensure_schema()
     ch = get_client()
 
-    cutoff_start = date(date.today().year - years, date.today().month, date.today().day)
+    # Calculate cutoff_start: days takes precedence over years
+    if days is not None:
+        cutoff_start = date.today() - timedelta(days=days)
+    else:
+        years = years if years is not None else 8
+        cutoff_start = date(date.today().year - years, date.today().month, date.today().day)
     semaphore = asyncio.Semaphore(concurrency)
 
     start_time = time.monotonic()
@@ -219,13 +225,22 @@ async def _run_async(
     total_requests = 0
     failures: list[tuple[str, str]] = []
 
-    logger.info(
-        "ThetaData options backfill: %d tickers, %d year window, concurrency=%d%s",
-        len(tickers),
-        years,
-        concurrency,
-        " (resume)" if resume else "",
-    )
+    if days is not None:
+        logger.info(
+            "ThetaData options backfill: %d tickers, %d day window, concurrency=%d%s",
+            len(tickers),
+            days,
+            concurrency,
+            " (resume)" if resume else "",
+        )
+    else:
+        logger.info(
+            "ThetaData options backfill: %d tickers, %d year window, concurrency=%d%s",
+            len(tickers),
+            years,
+            concurrency,
+            " (resume)" if resume else "",
+        )
 
     for ticker_idx, ticker in enumerate(tickers, 1):
         ticker_start = time.monotonic()
@@ -315,7 +330,8 @@ def run_options_backfill(
     concurrency: int = 4,
     resume: bool = False,
     dry_run: bool = False,
-    years: int = 8,
+    years: int | None = None,
+    days: int | None = None,
 ) -> None:
     """Synchronous wrapper for the async options backfill."""
-    asyncio.run(_run_async(tickers, concurrency, resume, dry_run, years))
+    asyncio.run(_run_async(tickers, concurrency, resume, dry_run, years, days))

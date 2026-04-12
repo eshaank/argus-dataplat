@@ -49,3 +49,6 @@ src/.codemogger/
 
 # SEC EDGAR CIK map cache
 .edgar_cik_map.json
+
+# Backfill progress files (local state)
+.backfill-progress/

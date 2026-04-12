@@ -67,6 +67,11 @@ def main() -> None:
     parser.add_argument("--months", type=int, default=48, help="Months of history (polygon, default 48)")
     parser.add_argument("--years", type=int, default=20, help="Years of history (schwab, default 20)")
     parser.add_argument("--concurrency", type=int, default=10, help="Concurrent requests (polygon, default 10)")
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Skip (ticker, month) pairs already present in ClickHouse (polygon only)",
+    )
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()
 
@@ -119,7 +124,7 @@ def main() -> None:
     if args.source == "polygon":
         from dataplat.ingestion.polygon.backfill_1min import run_polygon_backfill
 
-        run_polygon_backfill(tickers=tickers, months=args.months, concurrency=args.concurrency)
+        run_polygon_backfill(tickers=tickers, months=args.months, concurrency=args.concurrency, resume=args.resume)
     elif args.source == "schwab":
         from dataplat.ingestion.schwab.historical import run_schwab_backfill
 

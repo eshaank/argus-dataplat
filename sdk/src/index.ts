@@ -36,6 +36,9 @@ export type {
   VolumeProfilePoint,
   OptionChainParams,
   OptionSurfaceParams,
+  FlowSurfacePoint,
+  FlowSurfaceResult,
+  FlowSurfaceParams,
   QueryResult,
   SchemaColumn,
 } from './types.js';
@@ -87,6 +90,8 @@ export {
   getIVHistory,
   getOpenInterestProfile,
   getVolumeProfile,
+  getLatestTradeDate,
+  getFlowSurface,
 } from './queries/options.js';
 
 // ── Queries: Market ─────────────────────────────────────────────────

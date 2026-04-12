@@ -14,7 +14,8 @@ import polars as pl
 def transform_polygon_aggs(results: list[dict], ticker: str) -> pl.DataFrame:
     """Transform Polygon /v2/aggs response ``results`` list.
 
-    Polygon fields: v, vw, o, c, h, l, t, n
+    Polygon fields: v, o, c, h, l, t, n (optional: vw, n)
+    Some responses (OTC tickers, low-volume) omit vw and n.
     """
     if not results:
         return pl.DataFrame()
@@ -29,8 +30,8 @@ def transform_polygon_aggs(results: list[dict], ticker: str) -> pl.DataFrame:
         pl.col("l").cast(pl.Float64).alias("low"),
         pl.col("c").cast(pl.Float64).alias("close"),
         pl.col("v").cast(pl.Int64).cast(pl.UInt64).alias("volume"),
-        pl.col("vw").cast(pl.Float64).alias("vwap"),
-        pl.col("n").cast(pl.UInt32).alias("transactions"),
+        (pl.col("vw") if "vw" in df.columns else pl.lit(None)).cast(pl.Float64).alias("vwap"),
+        (pl.col("n") if "n" in df.columns else pl.lit(None)).cast(pl.UInt32).alias("transactions"),
         pl.lit("polygon_backfill").alias("source"),
         pl.lit(datetime.now(timezone.utc)).cast(pl.Datetime("ms", "UTC")).alias("ingested_at"),
     )

@@ -9,6 +9,9 @@ import type {
   OptionChainParams,
   OptionSurfaceParams,
   PutCall,
+  FlowSurfacePoint,
+  FlowSurfaceResult,
+  FlowSurfaceParams,
 } from '../types.js';
 
 function esc(s: string): string {
@@ -187,7 +190,9 @@ export async function getIVSurface(
       strike,
       implied_vol AS impliedVol,
       delta,
-      put_call AS putCall
+      put_call AS putCall,
+      volume,
+      open_interest AS openInterest
     FROM option_chains
     WHERE underlying = '${esc(params.underlying)}'
       ${snapshotClause}
@@ -214,7 +219,9 @@ export async function getIVSkew(
       strike,
       implied_vol AS impliedVol,
       delta,
-      put_call AS putCall
+      put_call AS putCall,
+      volume,
+      open_interest AS openInterest
     FROM option_chains
     WHERE underlying = '${esc(params.underlying)}'
       AND expiration = '${params.expiration}'
@@ -329,4 +336,89 @@ export async function getVolumeProfile(
 
   const result = await client.query<VolumeProfilePoint>(sql);
   return result.rows;
+}
+
+// ── Flow Surface (tick-level directional flow) ─────────────────────
+
+const FLOW_SURFACE_QUERY = `
+SELECT 
+    toInt32(dateDiff('day', toDate({trade_date:Date}), expiration)) AS dte,
+    toString(expiration) AS exp_str,
+    strike,
+    sum(CASE 
+        WHEN (put_call = 'call' AND aggressor_side = 'buy') 
+          OR (put_call = 'put' AND aggressor_side = 'sell')
+        THEN notional
+        WHEN aggressor_side = 'mid' THEN notional * 0.25
+        ELSE 0 
+    END) AS bullish_notional,
+    sum(CASE 
+        WHEN (put_call = 'call' AND aggressor_side = 'sell') 
+          OR (put_call = 'put' AND aggressor_side = 'buy')
+        THEN notional
+        WHEN aggressor_side = 'mid' THEN notional * 0.25
+        ELSE 0 
+    END) AS bearish_notional,
+    bullish_notional - bearish_notional AS net_flow,
+    (bullish_notional - bearish_notional) / NULLIF(bullish_notional + bearish_notional, 0) AS bias_ratio
+FROM option_trades
+WHERE underlying = {underlying:String}
+  AND trade_date = {trade_date:Date}
+  AND expiration >= {trade_date:Date}
+GROUP BY expiration, strike
+HAVING bullish_notional + bearish_notional >= 10000
+ORDER BY expiration, strike
+`;
+
+interface RawFlowRow {
+  exp_str: string;
+  strike: number;
+  dte: number;
+  bullish_notional: number;
+  bearish_notional: number;
+  net_flow: number;
+  bias_ratio: number | null;
+}
+
+/** Get the latest trade date for flow data. */
+export async function getLatestTradeDate(
+  client: DataPlatClient,
+  underlying: string,
+): Promise<string | null> {
+  const sql = `
+    SELECT toString(max(trade_date)) AS latest_date
+    FROM option_trades
+    WHERE underlying = '${esc(underlying)}'
+  `;
+  const result = await client.query<{ latest_date: string }>(sql);
+  const date = result.rows[0]?.latest_date;
+  return date && date !== '1970-01-01' ? date : null;
+}
+
+/** Flow surface: net directional positioning by strike × expiration. */
+export async function getFlowSurface(
+  client: DataPlatClient,
+  params: FlowSurfaceParams,
+): Promise<FlowSurfaceResult> {
+  // If no date provided, get latest
+  const tradeDate = params.tradeDate ?? (await getLatestTradeDate(client, params.underlying));
+  if (!tradeDate) return { tradeDate: '', points: [] };
+
+  const sql = FLOW_SURFACE_QUERY
+    .replace(/{underlying:String}/g, `'${esc(params.underlying)}'`)
+    .replace(/{trade_date:Date}/g, `'${tradeDate}'`);
+
+  const result = await client.query<RawFlowRow>(sql);
+
+  const points: FlowSurfacePoint[] = result.rows.map((row) => ({
+    expiration: row.exp_str,
+    strike: row.strike,
+    dte: row.dte,
+    bullishNotional: row.bullish_notional,
+    bearishNotional: row.bearish_notional,
+    netFlow: row.net_flow,
+    biasRatio: row.bias_ratio ?? 0,
+  }));
+
+  return { tradeDate, points };
 }
