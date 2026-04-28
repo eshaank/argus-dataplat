@@ -36,6 +36,9 @@ export type {
   VolumeProfilePoint,
   OptionChainParams,
   OptionSurfaceParams,
+  FlowSurfacePoint,
+  FlowSurfaceResult,
+  FlowSurfaceParams,
   QueryResult,
   SchemaColumn,
 } from './types.js';
@@ -87,6 +90,8 @@ export {
   getIVHistory,
   getOpenInterestProfile,
   getVolumeProfile,
+  getLatestTradeDate,
+  getFlowSurface,
 } from './queries/options.js';
 
 // ── Queries: Market ─────────────────────────────────────────────────
@@ -180,6 +185,55 @@ export type {
   DilutionSnapshot,
   DilutionTimeSeriesPoint,
 } from './queries/sec.js';
+
+// ── Queries: Commodities & Energy ───────────────────────────────────
+export {
+  getEnergySpotPrices,
+  getEnergySpotLatest,
+  getCommodityOHLCV,
+  getCommodityOHLCVMulti,
+  getCommodityLatest,
+  getCommodityReturns,
+  getCommodityTickers,
+  getBrentWTISpread,
+  getPetroleumWeekly,
+  getPetroleumStocksVs5Yr,
+  getOPECShare,
+  getPersianGulfDependency,
+  getCommodityOHLCVInterval,
+  getCommodityLatestReturns,
+  getCommodityCorrelationMatrix,
+  getCrossAssetCorrelation,
+  getRollingCorrelation,
+  getCommodityMovers,
+  getCommodityVolatility,
+  getCommoditySpreads,
+  getCommoditySeasonality,
+  getCommodityRatios,
+} from './queries/commodities.js';
+
+export type {
+  CommodityOHLCVInterval,
+  CommodityOHLCVBar,
+  CommodityLatestReturn,
+  EnergySpotPrice,
+  EnergySpotLatest,
+  CommodityOHLCV,
+  CommodityLatest,
+  CommodityReturn,
+  BrentWTISpread,
+  PetroleumWeekly,
+  PetroleumStocksVs5Yr,
+  OPECShare,
+  PersianGulfDependency,
+  CommodityCorrelationPair,
+  RollingCorrelationPoint,
+  CommodityMover,
+  CommodityVolatility,
+  CommoditySpread,
+  SeasonalityPoint,
+  CommodityRatio,
+} from './queries/commodities.js';
 
 // ── Queries: Raw SQL (ad-hoc exploration only) ──────────────────────
 export { rawQuery, getSchema } from './queries/sql.js';

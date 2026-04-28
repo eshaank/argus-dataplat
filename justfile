@@ -33,6 +33,14 @@ migrate:
 backfill *ARGS:
     uv run python -m dataplat.cli.backfill {{ARGS}}
 
+# Backfill daily OHLCV via Polygon grouped daily endpoint → ohlcv_daily table
+# Examples:
+#   just backfill-daily --universe nyse --months 3
+#   just backfill-daily --tickers AAPL,MSFT --months 1
+#   just backfill-daily --all-tickers --months 1
+backfill-daily *ARGS:
+    uv run python -m dataplat.cli.backfill --source polygon-daily {{ARGS}}
+
 # Fetch all active US equity tickers from Polygon → universes/all.txt
 fetch-universe:
     uv run python src/dataplat/ingestion/polygon/universes/fetch_all.py
@@ -47,12 +55,38 @@ backfill-fundamentals *ARGS:
 
 # Backfill economic indicators from FRED (treasury yields, inflation, rates, macro)
 # Examples:
-#   just backfill-economy                     # All 8 tables (~45 FRED series)
+#   just backfill-economy                     # All 9 tables (~47 FRED series)
 #   just backfill-economy --table rates        # Single table
 #   just backfill-economy --table macro_daily --table macro_weekly
 #   just backfill-economy --list               # Show available tables + series
 backfill-economy *ARGS:
     uv run python -m dataplat.cli.backfill_economy {{ARGS}}
+
+# Backfill commodity prices + EIA petroleum data
+# Examples:
+#   just backfill-commodities --all                         # All sources, full history
+#   just backfill-commodities --source eia                  # EIA only
+#   just backfill-commodities --source yfinance             # Yahoo Finance futures only
+#   just backfill-commodities --source fred                 # FRED gold/silver only
+#   just backfill-commodities --all --start 2025-04-01      # Pull recent from all sources
+#   just backfill-commodities --table eia_petroleum_weekly   # Single EIA table
+#   just backfill-commodities --list                        # Show available series
+backfill-commodities *ARGS:
+    uv run python -m dataplat.cli.backfill_commodities {{ARGS}}
+
+# Commodity futures intraday data (yfinance)
+# 15m: last 60 days, 1h/4h: last 730 days
+commodities-15m:
+    uv run python -c "from dataplat.ingestion.yfinance.commodities import run_yfinance_commodities; run_yfinance_commodities(interval='15m')"
+
+commodities-1h:
+    uv run python -c "from dataplat.ingestion.yfinance.commodities import run_yfinance_commodities; run_yfinance_commodities(interval='1h')"
+
+commodities-4h:
+    uv run python -c "from dataplat.ingestion.yfinance.commodities import run_yfinance_commodities; run_yfinance_commodities(interval='4h')"
+
+commodities-daily:
+    uv run python -c "from dataplat.ingestion.yfinance.commodities import run_yfinance_commodities; run_yfinance_commodities()"
 
 # Migrate local ClickHouse → cloud ClickHouse
 # Examples:
@@ -72,6 +106,16 @@ migrate-to-cloud *ARGS:
 backfill-options *ARGS:
     uv run python -m dataplat.cli.backfill_options {{ARGS}}
 
+# Backfill tick-level option trades from ThetaData v3
+# Requires: just thetadata up
+# Examples:
+#   just backfill-option-trades --tickers ARM
+#   just backfill-option-trades --tickers ARM,SPY,QQQ --years 2
+#   just backfill-option-trades --tickers SPY --years 2 --resume
+#   just backfill-option-trades --dry-run --tickers SPY,QQQ
+backfill-option-trades *ARGS:
+    uv run python -m dataplat.cli.backfill_option_trades {{ARGS}}
+
 # Backfill from SEC EDGAR (financials, filings, insider trades, institutional holders)
 # Examples:
 #   just backfill-edgar --all --universe all
@@ -83,6 +127,24 @@ backfill-options *ARGS:
 #   just backfill-edgar --all --universe all --dry-run
 backfill-edgar *ARGS:
     uv run python -m dataplat.cli.backfill_edgar {{ARGS}}
+
+# Zweig Breadth Thrust detector
+# Examples:
+#   just zbt
+#   just zbt --months 6
+zbt *ARGS:
+    uv run python -m dataplat.cli.zbt {{ARGS}}
+
+# ── Algo: Feature Engineering ──────────────────────────────────────
+
+# Compute daily algo features → ClickHouse
+# Examples:
+#   just compute-features --start 2023-01-01 --end 2024-12-31
+#   just compute-features --today
+#   just compute-features --today --dry-run
+#   just compute-features --list
+compute-features *ARGS:
+    uv run python -m dataplat.cli.compute_features {{ARGS}}
 
 # Run tests
 test:

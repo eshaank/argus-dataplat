@@ -319,6 +319,8 @@ export interface IVSurfacePoint {
   impliedVol: number;
   delta: number;
   putCall: PutCall;
+  volume: number;
+  openInterest: number;
 }
 
 export interface GreeksSnapshot {
@@ -374,4 +376,26 @@ export interface SchemaColumn {
   table: string;
   name: string;
   type: string;
+}
+
+// ── Flow Surface ───────────────────────────────────────────────────
+
+export interface FlowSurfacePoint {
+  expiration: string;      // ISO date (e.g., "2026-04-11")
+  strike: number;
+  dte: number;             // Days to expiration
+  bullishNotional: number; // Total $ bullish flow
+  bearishNotional: number; // Total $ bearish flow
+  netFlow: number;         // bullish - bearish (positive = bullish, negative = bearish)
+  biasRatio: number;       // -1 (all bearish) to +1 (all bullish), normalized
+}
+
+export interface FlowSurfaceResult {
+  tradeDate: string;       // Date of the flow data (for UI display)
+  points: FlowSurfacePoint[];
+}
+
+export interface FlowSurfaceParams {
+  underlying: string;
+  tradeDate?: string;      // ISO date; defaults to latest available
 }

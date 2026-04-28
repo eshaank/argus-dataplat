@@ -261,10 +261,11 @@ export async function getDilutionSnapshot(
   };
 }
 
-export async function getDilutionTimeSeries(
-  client: DataPlatClient, ticker: string, periods: 'annual' | 'quarterly' = 'quarterly',
+async function _queryDilutionTimeSeries(
+  client: DataPlatClient,
+  ticker: string,
+  periodFilter: string,
 ): Promise<DilutionTimeSeriesPoint[]> {
-  const periodFilter = periods === 'annual' ? "'FY'" : "'Q1','Q2','Q3','Q4'";
 
   const result = await client.query<{
     p_end: string; fiscal_year: string; fiscal_period: string;
@@ -331,4 +332,25 @@ export async function getDilutionTimeSeries(
     sharesAuthorized: r.shares_authorized,
     headroomPct: r.headroom_pct,
   }));
+}
+
+/**
+ * Fetch dilution time series, falling back to annual ('FY') if the
+ * requested quarterly periods return no data. Foreign private issuers
+ * (e.g. 20-F filers like NBIS) only ever have FY periods.
+ */
+export async function getDilutionTimeSeries(
+  client: DataPlatClient,
+  ticker: string,
+  periods: 'annual' | 'quarterly' = 'quarterly',
+): Promise<DilutionTimeSeriesPoint[]> {
+  const filter = periods === 'annual' ? "'FY'" : "'Q1','Q2','Q3','Q4'";
+  const rows = await _queryDilutionTimeSeries(client, ticker, filter);
+
+  // Foreign private issuers only have FY data — fall back transparently.
+  if (rows.length === 0 && periods === 'quarterly') {
+    return _queryDilutionTimeSeries(client, ticker, "'FY'");
+  }
+
+  return rows;
 }

@@ -48,7 +48,7 @@ yr AS (
     WHERE day >= today() - 252 AND day < today() - 1
     GROUP BY ticker
 )
-SELECT l.ticker,
+SELECT l.ticker AS ticker,
        coalesce(u.name, '') as name,
        l.close,
        round((l.close - p.prev_close) / p.prev_close * 100, 2) as change_pct,
@@ -82,7 +82,7 @@ yr AS (
     WHERE day >= today() - 252 AND day < today() - 1
     GROUP BY ticker
 )
-SELECT l.ticker,
+SELECT l.ticker AS ticker,
        coalesce(u.name, '') as name,
        l.close,
        round((l.close - p.prev_close) / p.prev_close * 100, 2) as change_pct,

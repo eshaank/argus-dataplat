@@ -38,6 +38,9 @@ class Settings(BaseSettings):
     # ── FRED ────────────────────────────────────────────────
     fred_api_key: str = ""
 
+    # ── EIA ─────────────────────────────────────────────────
+    eia_api_key: str = ""  # Free from https://www.eia.gov/opendata/register.php
+
     # ── SEC EDGAR ───────────────────────────────────────────
     sec_edgar_user_agent: str = ""  # Required: "YourName your@email.com"
 

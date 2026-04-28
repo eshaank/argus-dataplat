@@ -102,9 +102,10 @@ MACRO_DAILY = TableConfig(
         "DTWEXBGS":          "usd_index",
         "T10Y2Y":            "yield_curve_10y2y",
         "T10Y3M":            "yield_curve_10y3m",
-        "DCOILWTICO":        "wti_crude",
     },
 )
+
+# Note: gold + silver moved to yfinance (GC=F, SI=F) — FRED series discontinued
 
 MACRO_WEEKLY = TableConfig(
     table="macro_weekly",

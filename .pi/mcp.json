@@ -5,8 +5,8 @@
       "url": "https://docs.together.ai/mcp"
     },
     "codemogger": {
-      "command": "npx",
-      "args": ["-y", "codemogger", "mcp"]
+      "type": "sse",
+      "url": "http://localhost:4001/sse"
     },
     "ThetaData": {
       "type": "sse",

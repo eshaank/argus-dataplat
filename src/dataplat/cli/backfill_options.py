@@ -7,7 +7,7 @@ Requires ThetaTerminal v3 running: `just thetadata up`
 
 Examples:
     just backfill-options --tickers AAPL,MSFT
-    just backfill-options --universe sp100
+    just backfill-options --tickers SPY,QQQ --days 1
     just backfill-options --universe sp100 --resume
     just backfill-options --universe sp100 --dry-run
 """
@@ -47,7 +47,8 @@ def main() -> None:
         help="Predefined universe: sp100, spy (S&P 500), qqq (Nasdaq-100)",
     )
 
-    parser.add_argument("--years", type=int, default=8, help="Years of history (default 8)")
+    parser.add_argument("--years", type=int, default=None, help="Years of history (default 8 if no --days)")
+    parser.add_argument("--days", type=int, default=None, help="Days of history (overrides --years if set)")
     parser.add_argument("--concurrency", type=int, default=4, help="Concurrent requests (default 4, max 4)")
     parser.add_argument("--resume", action="store_true", help="Skip already-ingested (underlying, date) pairs")
     parser.add_argument("--dry-run", action="store_true", help="Count requests and estimate time without fetching data")
@@ -78,7 +79,12 @@ def main() -> None:
         logging.error("No tickers resolved. Check your --tickers, --file, or --universe argument.")
         sys.exit(1)
 
-    logging.info("Options backfill: %d ticker(s), %d years, concurrency=%d", len(tickers), args.years, concurrency)
+    # Determine time range
+    if args.days is not None:
+        logging.info("Options backfill: %d ticker(s), %d days, concurrency=%d", len(tickers), args.days, concurrency)
+    else:
+        years = args.years if args.years is not None else 8
+        logging.info("Options backfill: %d ticker(s), %d years, concurrency=%d", len(tickers), years, concurrency)
 
     from dataplat.ingestion.thetadata.options import run_options_backfill
 
@@ -88,6 +94,7 @@ def main() -> None:
         resume=args.resume,
         dry_run=args.dry_run,
         years=args.years,
+        days=args.days,
     )
 
 
