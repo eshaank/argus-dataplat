@@ -200,9 +200,22 @@ export {
   getPetroleumStocksVs5Yr,
   getOPECShare,
   getPersianGulfDependency,
+  getCommodityOHLCVInterval,
+  getCommodityLatestReturns,
+  getCommodityCorrelationMatrix,
+  getCrossAssetCorrelation,
+  getRollingCorrelation,
+  getCommodityMovers,
+  getCommodityVolatility,
+  getCommoditySpreads,
+  getCommoditySeasonality,
+  getCommodityRatios,
 } from './queries/commodities.js';
 
 export type {
+  CommodityOHLCVInterval,
+  CommodityOHLCVBar,
+  CommodityLatestReturn,
   EnergySpotPrice,
   EnergySpotLatest,
   CommodityOHLCV,
@@ -213,6 +226,13 @@ export type {
   PetroleumStocksVs5Yr,
   OPECShare,
   PersianGulfDependency,
+  CommodityCorrelationPair,
+  RollingCorrelationPoint,
+  CommodityMover,
+  CommodityVolatility,
+  CommoditySpread,
+  SeasonalityPoint,
+  CommodityRatio,
 } from './queries/commodities.js';
 
 // ── Queries: Raw SQL (ad-hoc exploration only) ──────────────────────

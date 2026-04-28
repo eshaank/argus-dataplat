@@ -74,6 +74,20 @@ backfill-economy *ARGS:
 backfill-commodities *ARGS:
     uv run python -m dataplat.cli.backfill_commodities {{ARGS}}
 
+# Commodity futures intraday data (yfinance)
+# 15m: last 60 days, 1h/4h: last 730 days
+commodities-15m:
+    uv run python -c "from dataplat.ingestion.yfinance.commodities import run_yfinance_commodities; run_yfinance_commodities(interval='15m')"
+
+commodities-1h:
+    uv run python -c "from dataplat.ingestion.yfinance.commodities import run_yfinance_commodities; run_yfinance_commodities(interval='1h')"
+
+commodities-4h:
+    uv run python -c "from dataplat.ingestion.yfinance.commodities import run_yfinance_commodities; run_yfinance_commodities(interval='4h')"
+
+commodities-daily:
+    uv run python -c "from dataplat.ingestion.yfinance.commodities import run_yfinance_commodities; run_yfinance_commodities()"
+
 # Migrate local ClickHouse → cloud ClickHouse
 # Examples:
 #   just migrate-to-cloud
